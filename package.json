@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "ts-node -r dotenv/config ./src/test.ts",
-    "typeorm": "ts-node -r tsconfig-paths/register -r dotenv/config ./node_modules/typeorm/cli.js"
+    "typeorm": "ts-node -r tsconfig-paths/register -r dotenv/config ./node_modules/typeorm/cli.js",
+    "db:sync": "npm run typeorm -- schema:sync",
+    "db:drop": "npm run typeorm -- schema:drop",
+    "db:reset": "npm run db:drop && npm run db:sync"
   },
   "author": "mabasasi",
   "private": true,
@@ -25,7 +28,9 @@
     "typescript": "^3.7.5"
   },
   "dependencies": {
+    "dot-prop": "^5.2.0",
     "dotenv": "^8.2.0",
+    "googleapis": "^47.0.0",
     "mysql": "^2.17.1",
     "reflect-metadata": "^0.1.13",
     "tsconfig-paths": "^3.9.0",

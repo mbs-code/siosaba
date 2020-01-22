@@ -233,7 +233,7 @@ npm script で dotenv を外部読み込みする
 - 予め database を作っておく
 - entity を基準に db table を生成する
   - `$ npm run typeorm -- schema:sync`
-
+- [typeorm/using\-cli\.md at master · typeorm/typeorm](https://github.com/typeorm/typeorm/blob/master/docs/using-cli.md)
 
 ### Diff Entity の作成 (自作)
 
@@ -290,3 +290,47 @@ export class DiffEntity extends BaseEntity {
 - [Get all properties from a entity · Issue \#1764 · typeorm/typeorm](https://github.com/typeorm/typeorm/issues/1764)
 - [Object\.fromEntries\(\) \- JavaScript \| MDN](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Object/fromEntries)
 - [fromentries/index\.js at master · feross/fromentries](https://github.com/feross/fromentries/blob/master/index.js)
+
+
+
+----
+----
+# YouTube 周り
+
+### google API の操作
+
+[googleapis \- npm](https://www.npmjs.com/package/googleapis)
+[dot\-prop \- npm](https://www.npmjs.com/package/dot-prop)
+OAuth でもできるが認証が面倒くさいので APIキー で操作する
+nest object 操作用に `dot-prop` も導入しておく（相当便利）
+
+```bash
+$ npm install --save googleapis dot-prop
+```
+
+```js
+import { google } from 'googleapis'
+const youtube = google.youtube({
+  version: 'v3',
+  auth: process.env.GOOGLE_API_KEY
+})
+```
+
+relation 有りで保存する方法
+[TypeORM - Working with Relations](https://typeorm.io/#/relational-query-builder)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -10,7 +10,7 @@ import {
 import { Channel } from './Channel'
 
 @Entity('channel_stats')
-export class ChannelStats extends BaseEntity {
+export class ChannelStat extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number
 
