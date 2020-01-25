@@ -316,21 +316,88 @@ const youtube = google.youtube({
 })
 ```
 
-relation 有りで保存する方法
-[TypeORM - Working with Relations](https://typeorm.io/#/relational-query-builder)
+### relation manager みたいなのが欲しい
+- relation 有りで保存する方法
+- `cascade: true`
+- [TypeORM - Working with Relations](https://typeorm.io/#/relational-query-builder)
+
+どうやら最新の一件だけを relation とかはできないらしいので自作管理クラスが必要かな
+[Is it possible to define custom relation conditions? · Issue \#1924 · typeorm/typeorm](https://github.com/typeorm/typeorm/issues/1924)
+
+方針としては `ViewEntity` で予め結合した entity を用意
+それに class function として save や push メソッドを生やす
+後は内部の listener だよりかなぁ？
+※更新したら再ロードを忘れないように
+
+！！！
+色々考察したが、直接管理するよりも間接的に manager クラスなどを使ったほうが良さそう
+なのでログ周りと重複して持たせることにする
+（整合性はプログラム側で取る）
+
+メイン処理 -> listener -> subscriber の順番で実行される
+また全体の処理は自動的に transaction になるので安心？
 
 
 
+### コンパイルおせーよ！
+
+当然だけど実行前に自動コンパイルしてるからね、仕方ないね
+`ts-node-dev` でホットリロード開発をする
+[whitecolor/ts\-node\-dev: Compiles your TS app and restarts when files are modified\.](https://github.com/whitecolor/ts-node-dev)
+
+```bash
+$ npm install -d ts-node-dev
+```
+
+`package.json` に追記
+とりあえず `src/test.ts` 中心に作成（後で最適化）
+
+```json
+"scripts": {
+  ...
+  "dev": "ts-node-dev --respawn ./src/test.ts --watch ./src"
+},
+```
+
+いちいち更新されるのが面倒くさいなら `--watch` dirをダミーにしておくと `rs` タイプで手動更新できる
+これでも十分早い
 
 
 
+### トランザクションのブロッキング？
 
+> `AfterInsert` で子テーブルの更新をしようと思ったらブロックがかかったっぽい
+> 検索しても、id があるものが見つからない原因
+> 
+> [MySQLのautocommitとトランザクション分離レベルのメモ \- Qiita](https://qiita.com/rubytomato@github/items/562a1638191aacaeb333)
+> 
+> - `READ-UNCOMMITTED` : 他のトランザクションのコミットされていない変更が見えます。
+> - `READ-COMMITTED` : 他のトランザクションのコミットされた変更が見えます。
+> - `REPEATABLE-READ` : default. トランザクション開始時にコミットされていたデータのみ見えます。
+> - `SERIALIZABLE` : すべてのselectでロックを行うことでトランザクションを直列化し競合が発生しないようにします。
+> 
+> `Cannot add or update a child row: a foreign key constraint fails`
+> このあたりのせいか？（初めての事象だからようわからん…）
 
+そんな面倒くさいことしなくても `query runner` でなんとかなった
 
+[Using QueryRunner to create and control state of single database connection](https://typeorm.io/#/transactions/using-queryrunner-to-create-and-control-state-of-single-database-connection)
 
+```js
+async afterInsert (event: InsertEvent<Channel>) {
+  const childEntity = new Entity()
+  childEntity.parent = event.entity
+  await event.queryRunner.manager.save(entity)
+}
+```
 
+これなら別の transaction が開始されないので、分離レベルを下げる必要もない
+`save()` メソッドの処理を変える必要もない！（助かった…）
 
+あれ、もっと言うと `subscriber` に噛ませると event 情報から更新カラムとかも取得できる…
+自分の考えてることくらい初めから実装されてるのね…
 
+`DiffEntity` は破棄かな
 
-
+[typeorm/listeners\-and\-subscribers\.md at master · typeorm/typeorm](https://github.com/typeorm/typeorm/blob/master/docs/listeners-and-subscribers.md)
 

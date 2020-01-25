@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "ts-node -r dotenv/config ./src/test.ts",
+    "dev": "ts-node-dev --respawn ./src/test.ts",
     "typeorm": "ts-node -r tsconfig-paths/register -r dotenv/config ./node_modules/typeorm/cli.js",
     "db:sync": "npm run typeorm -- schema:sync",
     "db:drop": "npm run typeorm -- schema:drop",

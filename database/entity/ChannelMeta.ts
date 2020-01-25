@@ -3,16 +3,24 @@ import {
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
-  ManyToOne
+  ManyToOne,
+  JoinColumn
 } from 'typeorm'
 
-import { DiffEntity } from './DiffEntity'
+import { ExtendEntity } from './ExtendEntity'
 import { Channel } from './Channel'
 
 @Entity('channel_metas')
-export class ChannelMeta extends DiffEntity {
+export class ChannelMeta extends ExtendEntity {
   @PrimaryGeneratedColumn()
   id: number
+
+  @Column({ name: 'channel_id' })
+  channelId: number
+
+  // @Index({ unique: true }) <- not unique
+  @Column()
+  key: string
 
   @Column()
   title: string
@@ -44,6 +52,9 @@ export class ChannelMeta extends DiffEntity {
   @CreateDateColumn({ type: 'datetime', name: 'created_at' })
   createdAt: Date
 
+  ///
+
   @ManyToOne(type => Channel, channel => channel.metas)
+  @JoinColumn({ name: 'channel_id' })
   channel: Channel
 }
