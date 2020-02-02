@@ -11,11 +11,22 @@ import {
 import { ExtendEntity } from './ExtendEntity'
 import { ChannelMeta } from './ChannelMeta'
 import { ChannelStat } from './ChannelStat'
+import { Video } from './Video'
 
 @Entity('channels')
 export class Channel extends ExtendEntity {
+  static async findOrCreate (query?: object) {
+    const element = await this.findOne(query)
+    return element || new this()
+  }
+
+  ///
+
   @PrimaryGeneratedColumn()
   id: number
+
+  ///
+  // ChannelMeta
 
   @Index({ unique: true })
   @Column()
@@ -36,8 +47,8 @@ export class Channel extends ExtendEntity {
   @Column({ nullable: true })
   playlist: string
 
-  @Column({ type: 'text', nullable: true })
-  keyword: string
+  @Column({ type: 'simple-array', nullable: true })
+  tags: string[] // csv
 
   @Column({ nullable: true })
   banner: string
@@ -45,8 +56,11 @@ export class Channel extends ExtendEntity {
   @Column({ nullable: true, name: 'banner_hires' })
   bannerHires: string
 
-  @Column({ nullable: true, name: 'published_at' })
+  @Column({ type: 'datetime', precision: 3, nullable: true, name: 'published_at' })
   publishedAt: Date
+
+  ///
+  // ChannelStat
 
   @Column({ type: 'int', unsigned: true })
   view: number
@@ -60,27 +74,24 @@ export class Channel extends ExtendEntity {
   @Column({ type: 'int', unsigned: true })
   video: number
 
-  @CreateDateColumn({ type: 'datetime', name: 'created_at' })
+  ///
+
+  @CreateDateColumn({ type: 'datetime', precision: 3, default: () => 'CURRENT_TIMESTAMP(3)', name: 'created_at' })
   createdAt: Date
 
-  @UpdateDateColumn({ type: 'datetime', name: 'updated_at' })
+  @UpdateDateColumn({ type: 'datetime', precision: 3, default: () => 'CURRENT_TIMESTAMP(3)', name: 'updated_at' })
   updatedAt: Date
 
   ///
+
+  @OneToMany(type => Video, video => video.channel)
+  videos: Video[]
 
   @OneToMany(type => ChannelMeta, meta => meta.channel)
   metas: ChannelMeta[]
 
   @OneToMany(type => ChannelStat, stat => stat.channel)
   stats: ChannelStat[]
-
-  ///
-
-  // TODO: ここに生やしていいのか
-  static async findOrCreate (query?: object) {
-    const element = await this.findOne(query)
-    return element || new this()
-  }
 
   ///
 
@@ -103,30 +114,4 @@ export class Channel extends ExtendEntity {
     stat.channel = this
     return stat
   }
-
-  // @BeforeUpdate()
-  // async _checkChangeLog () {
-  //   console.log('>> before update')
-  //   const meta = new ChannelMeta()
-  //   await this.change(meta, ['id', 'channel', 'createdAt'])
-  //   console.log('>>')
-
-  //   const stat = new ChannelStat()
-  //   await this.change(stat, ['id', 'channel', 'createdAt'])
-  //   console.log('>> before update after')
-  // }
-
-  // async change (tClass: ChannelRelationEntity, tColumns: string[], isForce : boolean = false) {
-  //   const columns = tClass.getColumnNames(...tColumns)
-  //   const change = this.getChangeValues(columns)
-
-  //   // 変更点があったらログに保存する
-  //   if (isForce || Object.keys(change).length) {
-  //     for (const col of columns) {
-  //       tClass[col] = this[col]
-  //     }
-  //     tClass.channelId = this.id
-  //     await tClass.save()
-  //   }
-  // }
 }

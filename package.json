@@ -29,9 +29,11 @@
     "typescript": "^3.7.5"
   },
   "dependencies": {
+    "dayjs": "^1.8.19",
     "dot-prop": "^5.2.0",
     "dotenv": "^8.2.0",
     "googleapis": "^47.0.0",
+    "iso8601-duration": "^1.2.0",
     "mysql": "^2.17.1",
     "reflect-metadata": "^0.1.13",
     "tsconfig-paths": "^3.9.0",

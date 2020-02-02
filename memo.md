@@ -150,6 +150,7 @@ $ npm install --save-dev @types/dotenv
 ```
 
 [TypeORM - Using Configuration Sources](https://typeorm.io/#/using-ormconfig)
+[typeorm/connection\-options\.md at master · typeorm/typeorm](https://github.com/typeorm/typeorm/blob/master/docs/connection-options.md)
 
 `ormconfig.js` の作成
 ディレクトリは `database/*` にしておく
@@ -157,11 +158,15 @@ $ npm install --save-dev @types/dotenv
 ```js
 module.exports = {
   type: 'mysql',
+  charset: 'utf8mb4',
+  timezone: '+09:00',
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  debug: false,
+  logging: true,
   synchronize: false,
   entities: [
     'database/entity/**/*.ts'
@@ -216,6 +221,25 @@ npm script で dotenv を外部読み込みする
   - カラム名変更は `@Column({ name: <Column Name> })`
   - カラムのDBでの型指定は `@Column({ type: '<Type Name>' })`
     - mysql : bit, int, integer, tinyint, smallint, mediumint, bigint, float, double, double precision, dec, decimal, numeric, fixed, bool, boolean, date, datetime, timestamp, time, year, char, nchar, national char, varchar, nvarchar, national varchar, text, tinytext, mediumtext, blob, longtext, tinyblob, mediumblob, longblob, enum, set, json, binary, varbinary, geometry, point, linestring, polygon, multipoint, multilinestring, multipolygon, geometrycollection
+
+
+### float 系の指定方法
+
+```ts
+@Column("decimal", { precision: 5, scale: 2 })
+value: number;
+```
+
+時刻の精度は少し工夫が必要
+[Custom precision on CreateDateColumn and UpdateDateColumn · Issue \#609 · typeorm/typeorm](https://github.com/typeorm/typeorm/issues/609)
+
+```ts
+@CreateDateColumn({ type: 'datetime', precision: 3, default: () => 'CURRENT_TIMESTAMP(3)' })
+createdAt: Date
+
+@UpdateDateColumn({ type: 'datetime', precision: 3, default: () => 'CURRENT_TIMESTAMP(3)' })
+updatedAt: Date
+```
 
 
 ### migration する
@@ -400,4 +424,48 @@ async afterInsert (event: InsertEvent<Channel>) {
 `DiffEntity` は破棄かな
 
 [typeorm/listeners\-and\-subscribers\.md at master · typeorm/typeorm](https://github.com/typeorm/typeorm/blob/master/docs/listeners-and-subscribers.md)
+
+
+### 時刻関係
+
+moment じゃなくて dayjs を使う
+- 軽い
+- プラグイン方式なので必要な要素だけ導入できる
+- timezone に標準対応
+
+[iamkun/dayjs: ⏰ Day\.js 2KB immutable date library alternative to Moment\.js with the same modern API](https://github.com/iamkun/dayjs)
+```bash
+$ npm install dayjs --save
+```
+
+この中に iso8601 の duration に対応したフォーマットが無さそう…
+（`PT10M32S` みたいなやつ）
+時刻扱いの本質とは違うので別ライブラリを引用することにした
+[tolu/ISO8601\-duration: Node/Js\-module for parsing and making sense of ISO8601\-durations](https://github.com/tolu/ISO8601-duration)
+
+```bash
+$ npm install --save iso8601-duration
+```
+
+パーサーとコンバーサー？がある
+
+```ts
+import * as dayjs from 'dayjs'
+import { parse as parseDuration, toSeconds } from 'iso8601-duration'
+
+const parseDatetime = function (iso8601Datetime?: string) {
+  if (iso8601Datetime) {
+    const day = dayjs(iso8601Datetime).format()
+    return day
+  }
+}
+
+const parseDuration = function (iso8601Duration?: string) {
+  if (iso8601Duration) {
+    const parse = parseDuration(iso8601Duration)
+    return toSeconds(parse)
+  }
+}
+```
+
 

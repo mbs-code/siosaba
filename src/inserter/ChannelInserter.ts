@@ -1,49 +1,45 @@
 import { get } from 'dot-prop'
 
+import Inserter from './Inserter'
 import { Channel } from '../../database/entity/Channel'
 
-export default class ChannelInserter {
+export default class ChannelInserter extends Inserter {
   item: object
 
   constructor (item: object) {
+    super()
     this.item = item
   }
 
   async insert () {
     const item = this.item
 
-    const ch = await Channel.findOrCreate({ key: get(item, 'id') })
-    ch.key = get(item, 'id')
+    const channel = await Channel.findOrCreate({ key: get(item, 'id') })
+    channel.key = get(item, 'id')
+    ///
+    channel.title = get(item, 'snippet.title')
+    channel.description = get(item, 'snippet.description')
+    channel.thumbnail = get(item, 'snippet.thumbnails.default.url')
+    channel.thumbnailHires = this._extractHiresThumbnail(get(item, 'snippet.thumbnails', []))
+    channel.playlist = get(item, 'contentDetails.relatedPlaylists.uploads')
+    channel.tags = this._splitKeywords(get(item, 'brandingSettings.channel.keywords'))
+    channel.banner = get(item, 'brandingSettings.image.bannerImageUrl')
+    channel.bannerHires = get(item, 'brandingSettings.image.bannerTvHighImageUrl')
+    channel.publishedAt = this.parseDatetime(get(item, 'snippet.publishedAt'))
+    ///
+    channel.view = get(item, 'statistics.viewCount')
+    channel.comment = get(item, 'statistics.commentCount')
+    channel.subscriber = get(item, 'statistics.subscriberCount')
+    channel.video = get(item, 'statistics.videoCount')
 
-    ch.title = get(item, 'snippet.title')
-    ch.description = get(item, 'snippet.description')
-    ch.publishedAt = new Date(get(item, 'snippet.publishedAt'))
-    ch.thumbnail = get(item, 'snippet.thumbnails.default.url')
-    ch.thumbnailHires = this._extractHiresThumbnail(get(item, 'snippet.thumbnails', []))
-    ch.playlist = get(item, 'contentDetails.relatedPlaylists.uploads')
-    ch.keyword = get(item, 'brandingSettings.channel.keywords')
-    ch.banner = get(item, 'brandingSettings.image.bannerImageUrl')
-    ch.bannerHires = get(item, 'brandingSettings.image.bannerTvHighImageUrl')
-    ch.publishedAt = new Date(get(item, 'snippet.publishedAt'))
-
-    ch.view = get(item, 'statistics.viewCount')
-    ch.comment = get(item, 'statistics.commentCount')
-    ch.subscriber = get(item, 'statistics.subscriberCount')
-    ch.video = get(item, 'statistics.videoCount')
-
-    await ch.save()
+    await channel.save()
   }
 
   ///
 
-  private _extractHiresThumbnail = function (thumbnails: Object[]) {
-    const types = ['maxers', 'standard', 'high', 'medium', 'default']
-    for (const type of types) {
-      const thumb: string = get(thumbnails, `${type}.url`)
-      if (thumb) {
-        return thumb
-      }
+  private _splitKeywords (keyword: string) {
+    if (keyword) {
+      return keyword.split(' ')
     }
-    return undefined
   }
 }

@@ -1,3 +1,4 @@
+
 import {
   Entity,
   Column,
@@ -8,15 +9,15 @@ import {
 } from 'typeorm'
 
 import { ExtendEntity } from './ExtendEntity'
-import { Channel } from './Channel'
+import { Video } from './Video'
 
-@Entity('channel_stats')
-export class ChannelStat extends ExtendEntity {
+@Entity('video_stats')
+export class VideoStat extends ExtendEntity {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Column({ name: 'channel_id' })
-  channelId: number
+  @Column({ name: 'video_id' })
+  videoId: number
 
   ///
 
@@ -24,13 +25,19 @@ export class ChannelStat extends ExtendEntity {
   view: number
 
   @Column({ type: 'int', unsigned: true, nullable: true })
+  like: number
+
+  @Column({ type: 'int', unsigned: true, nullable: true })
+  dislike: number
+
+  @Column({ type: 'int', unsigned: true, nullable: true })
+  favorite: number
+
+  @Column({ type: 'int', unsigned: true, nullable: true })
   comment: number
 
-  @Column({ type: 'int', unsigned: true, nullable: true })
-  subscriber: number
-
-  @Column({ type: 'int', unsigned: true, nullable: true })
-  video: number
+  @Column({ type: 'int', unsigned: true, nullable: true, name: 'concurrent_viewers' })
+  concurrentViewers: number
 
   ///
 
@@ -39,7 +46,7 @@ export class ChannelStat extends ExtendEntity {
 
   ///
 
-  @ManyToOne(type => Channel, channel => channel.stats)
-  @JoinColumn({ name: 'channel_id' })
-  channel: Channel
+  @ManyToOne(type => Video, video => video.stats)
+  @JoinColumn({ name: 'video_id' })
+  video: Video
 }

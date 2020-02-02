@@ -18,6 +18,8 @@ export class ChannelMeta extends ExtendEntity {
   @Column({ name: 'channel_id' })
   channelId: number
 
+  ///
+
   // @Index({ unique: true }) <- not unique
   @Column()
   key: string
@@ -37,8 +39,8 @@ export class ChannelMeta extends ExtendEntity {
   @Column({ nullable: true })
   playlist: string
 
-  @Column({ type: 'text', nullable: true })
-  keyword: string
+  @Column({ type: 'simple-array', nullable: true })
+  tags: string[] // csv
 
   @Column({ nullable: true })
   banner: string
@@ -46,10 +48,12 @@ export class ChannelMeta extends ExtendEntity {
   @Column({ nullable: true, name: 'banner_hires' })
   bannerHires: string
 
-  @Column({ nullable: true, name: 'published_at' })
+  @Column({ type: 'datetime', precision: 3, nullable: true, name: 'published_at' })
   publishedAt: Date
 
-  @CreateDateColumn({ type: 'datetime', name: 'created_at' })
+  ///
+
+  @CreateDateColumn({ type: 'datetime', precision: 3, default: () => 'CURRENT_TIMESTAMP(3)', name: 'created_at' })
   createdAt: Date
 
   ///
