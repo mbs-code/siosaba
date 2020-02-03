@@ -4,7 +4,7 @@ import {
 } from 'typeorm'
 
 export class ExtendEntity extends BaseEntity {
-  static async findOrCreate<T extends typeof ExtendEntity> (this: T, query?: object) : Promise<InstanceType<T>> {
+  static async findOrCreate<T extends typeof ExtendEntity> (this: T, query: object) : Promise<InstanceType<T>> {
     const element = await this.findOne(query)
     return (element || new this()) as InstanceType<T>
   }

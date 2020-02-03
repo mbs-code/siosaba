@@ -469,3 +469,40 @@ const parseDuration = function (iso8601Duration?: string) {
 ```
 
 
+### typescript の static function の 継承
+
+[generics \- TypeScript: self\-referencing return type for static methods in inheriting classes \- Stack Overflow](https://stackoverflow.com/questions/34098023/typescript-self-referencing-return-type-for-static-methods-in-inheriting-classe?rq=1)
+typescript で 継承元の static function を実行すると this の基準が親クラスになる問題
+これは既知の不具合らしい
+対処法は `InstanceType<T>` でくくってあげる？
+
+調べていくと下の記述で実装できた
+
+[Polymorphic "this" for static members · Issue \#5863 · microsoft/TypeScript](https://github.com/Microsoft/TypeScript/issues/5863)
+
+```ts
+class Foo {
+    static create<T extends typeof Foo>(this: T): InstanceType<T> {
+        return (new this()) as InstanceType<T>;
+    }
+}
+
+class Bar extends Foo { }
+
+// typeof b is Bar.
+const b = Bar.create()
+```
+
+更に promise 対応させたのがこれ
+
+```ts
+// 
+export class ExtendEntity extends Entity {
+  static async findOrCreate<T extends typeof Entity> (this: T, query?: object) : Promise<InstanceType<T>> {
+    const element = await this.findOne(query)
+    return (element || new this()) as InstanceType<T>
+  }
+}
+```
+
+

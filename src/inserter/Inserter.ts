@@ -3,10 +3,33 @@ import { get } from 'dot-prop'
 import * as dayjs from 'dayjs'
 import { parse as parseDuration, toSeconds } from 'iso8601-duration'
 
-export default class Inserter {
-  static readonly THUMBNAIL_TYPES = ['maxres', 'standard', 'high', 'medium', 'default']
+import { ExtendEntity } from '../../database/entity/ExtendEntity' // eslint-disable-line no-unused-vars
 
-  protected _extractHiresThumbnail = function (thumbnails: Object) {
+export default abstract class Inserter<T extends ExtendEntity> {
+  key: string
+  item: object
+
+  constructor (item: object) {
+    const key: string = get(item, 'id')
+    if (!key) {
+      throw new Error('Key is not defined.')
+    }
+
+    this.key = key
+    this.item = item
+  }
+
+  async exec () {
+    const insert = await this.insert(this.item)
+  }
+
+  protected abstract async insert(item: object) : Promise<T>
+
+  ///
+
+  private static readonly THUMBNAIL_TYPES = ['maxres', 'standard', 'high', 'medium', 'default']
+
+  protected extractHiresThumbnail = function (thumbnails: Object) {
     if (thumbnails) {
       for (const type of this.constructor.THUMBNAIL_TYPES) {
         const thumb: string = get(thumbnails, `${type}.url`)
