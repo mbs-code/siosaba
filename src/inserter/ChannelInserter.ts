@@ -1,9 +1,30 @@
 import { get } from 'dot-prop'
 
+import { youtube_v3 as youtubeV3 } from 'googleapis' // eslint-disable-line no-unused-vars
+
 import Inserter from './Inserter'
 import { Channel } from '../../database/entity/Channel'
 
 export default class ChannelInserter extends Inserter<Channel> {
+  youtube: youtubeV3.Youtube
+
+  constructor (youtube: youtubeV3.Youtube) {
+    super()
+    this.youtube = youtube
+  }
+
+  protected async fetch (ids: string[]) {
+    // Doc: https://developers.google.com/youtube/v3/docs/channels/list?hl=en
+    // quota: 0,2,2,2,2 = 8
+    const response = await this.youtube.channels.list({
+      part: 'id, snippet, statistics, contentDetails, brandingSettings',
+      id: ids.join(','),
+      maxResults: 50
+    })
+
+    const items: object[] = get(response, 'data.items')
+    return items
+  }
 
   protected async insert (item: object) {
     const c = await Channel.findOrCreate({ key: get(item, 'id') })

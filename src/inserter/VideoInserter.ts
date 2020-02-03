@@ -1,6 +1,7 @@
 import { get } from 'dot-prop'
-
 import * as dayjs from 'dayjs'
+
+import { youtube_v3 as youtubeV3 } from 'googleapis' // eslint-disable-line no-unused-vars
 
 import Inserter from './Inserter'
 import { Video } from '../../database/entity/Video'
@@ -8,6 +9,26 @@ import { VideoType } from '../../database/entity/type/VideoType'
 import { VideoStatus } from '../../database/entity/type/VideoStatus'
 
 export default class VideoInserter extends Inserter<Video> {
+  youtube: youtubeV3.Youtube
+
+  constructor (youtube: youtubeV3.Youtube) {
+    super()
+    this.youtube = youtube
+  }
+
+  protected async fetch (ids: string[]) {
+    // Doc: https://developers.google.com/youtube/v3/docs/videos/list?hl=en
+    // quota: 0,2,2,2,2,2 = 10
+    const response = await this.youtube.videos.list({
+      part: 'id, snippet, contentDetails, statistics, status, liveStreamingDetails',
+      id: ids.join(','),
+      maxResults: 50
+    })
+
+    const items: object[] = get(response, 'data.items')
+    return items
+  }
+
   protected async insert (item: object) {
     const v = await Video.findOrCreate({ key: get(item, 'id') })
     v.key = get(item, 'id')

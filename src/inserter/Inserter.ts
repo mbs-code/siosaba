@@ -6,22 +6,20 @@ import { parse as parseDuration, toSeconds } from 'iso8601-duration'
 import { ExtendEntity } from '../../database/entity/ExtendEntity' // eslint-disable-line no-unused-vars
 
 export default abstract class Inserter<T extends ExtendEntity> {
-  key: string
-  item: object
-
-  constructor (item: object) {
-    const key: string = get(item, 'id')
-    if (!key) {
-      throw new Error('Key is not defined.')
+  async exec (param: { ids?: string[] }) {
+    const items = await this.fetch(param.ids)
+    for (const item of items) {
+      try {
+        const insert = await this.insert(item)
+      } catch (e) {
+        const key = get(item, 'id')
+        const title = get(item, 'snippet.title')
+        console.log(`error - [${key}] ${title}`)
+      }
     }
-
-    this.key = key
-    this.item = item
   }
 
-  async exec () {
-    const insert = await this.insert(this.item)
-  }
+  protected abstract async fetch(ids: string[]) : Promise<object[]>
 
   protected abstract async insert(item: object) : Promise<T>
 
