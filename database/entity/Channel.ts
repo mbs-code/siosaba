@@ -97,7 +97,7 @@ export class Channel extends ExtendEntity {
 
   createChannelMeta () {
     const meta = new ChannelMeta()
-    const cols = ChannelMeta.getColumnNames('id', 'channel_id', 'createdAt')
+    const cols = ChannelMeta.getColumnNames('id', 'channelId', 'createdAt')
     for (const col of cols) {
       meta[col] = this[col]
     }
@@ -107,7 +107,7 @@ export class Channel extends ExtendEntity {
 
   createChannelStat () {
     const stat = new ChannelStat()
-    const cols = ChannelStat.getColumnNames('id', 'channel_id', 'createdAt')
+    const cols = ChannelStat.getColumnNames('id', 'channelId', 'createdAt')
     for (const col of cols) {
       stat[col] = this[col]
     }

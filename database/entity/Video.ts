@@ -131,7 +131,7 @@ export class Video extends ExtendEntity {
 
   createVideoMeta () {
     const meta = new VideoMeta()
-    const cols = VideoMeta.getColumnNames('id', 'video_id', 'createdAt')
+    const cols = VideoMeta.getColumnNames('id', 'videoId', 'createdAt')
     for (const col of cols) {
       meta[col] = this[col]
     }
@@ -141,7 +141,7 @@ export class Video extends ExtendEntity {
 
   createVideoStat () {
     const stat = new VideoStat()
-    const cols = VideoStat.getColumnNames('id', 'video_id', 'createdAt')
+    const cols = VideoStat.getColumnNames('id', 'videoId', 'createdAt')
     for (const col of cols) {
       stat[col] = this[col]
     }
