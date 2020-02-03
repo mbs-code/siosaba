@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "ts-node -r dotenv/config ./server/index.ts",
+    "dev": "ts-node-dev --respawn ./server/index.ts",
     "test": "ts-node -r dotenv/config ./src/test.ts",
-    "dev": "ts-node-dev --respawn ./src/test.ts",
     "typeorm": "ts-node -r tsconfig-paths/register -r dotenv/config ./node_modules/typeorm/cli.js",
     "db:sync": "npm run typeorm -- schema:sync",
     "db:drop": "npm run typeorm -- schema:drop",
@@ -15,6 +16,9 @@
   "private": true,
   "devDependencies": {
     "@types/dotenv": "^8.2.0",
+    "@types/koa": "^2.11.0",
+    "@types/koa-router": "^7.4.0",
+    "@types/koa-useragent": "^2.1.2",
     "@types/node": "^13.1.8",
     "@typescript-eslint/eslint-plugin": "^2.16.0",
     "@typescript-eslint/parser": "^2.16.0",
@@ -34,8 +38,12 @@
     "dotenv": "^8.2.0",
     "googleapis": "^47.0.0",
     "iso8601-duration": "^1.2.0",
+    "koa": "^2.11.0",
+    "koa-router": "^8.0.6",
+    "koa-useragent": "^4.0.0",
     "mysql": "^2.17.1",
     "reflect-metadata": "^0.1.13",
+    "tableify": "^1.1.0",
     "tsconfig-paths": "^3.9.0",
     "typeorm": "^0.2.22"
   }

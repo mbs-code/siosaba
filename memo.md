@@ -506,3 +506,89 @@ export class ExtendEntity extends Entity {
 ```
 
 
+
+----
+----
+# KOA やるお
+
+[koaでサーバ開発クイックスタート \- Qiita](https://qiita.com/carrotflakes/items/aa86ba0a51f753aa61bd)
+
+[Koa \- next generation web framework for node\.js](https://koajs.com/)
+[koa/index\.md at 2\.0\.0\-alpha\.3 · koajs/koa](https://github.com/koajs/koa/blob/2.0.0-alpha.3/docs/api/index.md)
+
+`Express` をより綺麗にしたプラグイン方式のwebフレームワーク
+標準で `async/await` に対応してる
+
+```bash
+$ npm install --save koa
+$ npm install --save-dev @types/koa
+```
+
+ディレクトリは `./server/index.ts` を基準にする
+
+```ts
+import * as Koa from 'koa'
+
+const app = new Koa()
+app.use((ctx: Koa.Context) => {
+  ctx.body = 'Hello, Koa!'
+})
+
+app.listen(3000)
+console.log('listen to http://localhost:3000')
+```
+
+npm script の方向を `server/index.ts` に変更しとく
+わお簡単
+
+
+### router 
+
+[koajs/router: Router middleware for koa\.](https://github.com/koajs/router)
+[router/API\.md at master · koajs/router](https://github.com/koajs/router/blob/master/API.md)
+
+いつものやつ
+実質これも必須なのでは
+
+```bash
+$ npm install --save koa-router
+$ npm install --save-dev @types/koa-router
+```
+
+```ts
+import * as Koa from 'koa'
+import * as Router from 'koa-router'
+
+const router = new Router()
+router.get('/', async (ctx, next) => {
+  ctx.body = 'Hello, Koa!'
+})
+router.get('/test', async (ctx, next) => {
+  ctx.body = '/test にアクセスされたよ'
+})
+router.get('/test/:id', async (ctx, next) => {
+  ctx.body = `/test/${ctx.params.id} にアクセスされたよ`
+})
+
+const app = new Koa()
+app.use(router.routes())
+app.use(router.allowedMethods())
+
+app.listen(3000)
+console.log('listen to http://localhost:3000')
+```
+
+### middleware
+
+挿入方法はこれ
+[koa/guide\.md at master · koajs/koa](https://github.com/koajs/koa/blob/master/docs/guide.md)
+
+`await next()` を挟むと処理を最後にできる
+
+
+### typeORM との接続
+
+[typescript\-koa\-example/index\.ts at master · typeorm/typescript\-koa\-example](https://github.com/typeorm/typescript-koa-example/blob/master/src/index.ts)
+
+DB との接続を確立したあとにサーバーを立ち上げるのがベストっぽい
+
