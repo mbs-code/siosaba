@@ -19,13 +19,6 @@ import { VideoStatus } from './type/VideoStatus'
 
 @Entity('videos')
 export class Video extends ExtendEntity {
-  static async findOrCreate (query?: object) {
-    const element = await this.findOne(query)
-    return element || new this()
-  }
-
-  ///
-
   @PrimaryGeneratedColumn()
   id: number
 

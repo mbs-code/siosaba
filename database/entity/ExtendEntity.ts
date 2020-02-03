@@ -4,6 +4,12 @@ import {
 } from 'typeorm'
 
 export class ExtendEntity extends BaseEntity {
+  static async findOrCreate<T extends typeof ExtendEntity> (this: T, query?: object) : Promise<InstanceType<T>> {
+    const element = await this.findOne(query)
+    return (element || new this()) as InstanceType<T>
+  }
+  ///
+
   /**
    * 自身の column name を取得する.
    * - entity の property name を基準とする (DBではない)
