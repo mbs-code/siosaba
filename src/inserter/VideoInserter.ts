@@ -29,8 +29,8 @@ export default class VideoInserter extends Inserter<Video> {
     return items
   }
 
-  protected async insert (item: object) {
-    const v = await Video.findOrCreate({ key: get(item, 'id') })
+  protected async insert (key: string, item: object) {
+    const v = await Video.findOrCreate({ key: key })
     v.key = get(item, 'id')
     ///
     v.title = get(item, 'snippet.title')
@@ -65,7 +65,28 @@ export default class VideoInserter extends Inserter<Video> {
     return v
   }
 
-  ///
+  protected async delete (key: string, item: object) {
+    const v = await Video.findOne({ key: key })
+
+    // DBに存在する時のみ上書きする
+    if (v) {
+      v.status = VideoStatus.PRIVATE
+
+      // ライブ中なら終わった時刻をとりあえず現在時刻にしておく
+      if (v.type === VideoType.LIVE) {
+        v.type = VideoType.ARCHIVE
+        v.endTime = new Date()
+      }
+
+      await v.save()
+      return v
+    }
+
+    // DBに存在しない場合は ID Error
+    throw new Error(`Video ID is not found. id: ${key}`)
+  }
+
+  /// ////////////////////////////////////////////////////////////
 
   private _calcStartEndTime = function (video: Video) {
     if (video.type === VideoType.ARCHIVE) {

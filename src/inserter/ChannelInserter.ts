@@ -26,8 +26,8 @@ export default class ChannelInserter extends Inserter<Channel> {
     return items
   }
 
-  protected async insert (item: object) {
-    const c = await Channel.findOrCreate({ key: get(item, 'id') })
+  protected async insert (key: string, item: object) {
+    const c = await Channel.findOrCreate({ key: key })
     c.key = get(item, 'id')
     ///
     c.title = get(item, 'snippet.title')
@@ -49,7 +49,11 @@ export default class ChannelInserter extends Inserter<Channel> {
     return c
   }
 
-  ///
+  protected async delete (key: string, item: object) {
+    throw new Error(`Channel ID is not found. id: ${key}`)
+  }
+
+  /// ////////////////////////////////////////////////////////////
 
   private _splitKeywords (keyword: string) {
     if (keyword) {

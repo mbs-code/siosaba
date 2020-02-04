@@ -15,23 +15,22 @@ export class VideoSubscriber implements EntitySubscriberInterface<Video> {
   }
 
   async afterInsert (event: InsertEvent<Video>) {
-    console.log('> channel subscriber - after insert')
-
+    // console.log('> channel subscriber - after insert')
     const video = event.entity
 
     // meta の保存
     const meta = video.createVideoMeta()
     await event.queryRunner.manager.save(meta)
-    console.log('>> save video_meta')
+    // console.log('>> save video_meta')
 
     // stat の保存
     const stat = video.createVideoStat()
     await event.queryRunner.manager.save(stat)
-    console.log('>> save video_stat')
+    // console.log('>> save video_stat')
   }
 
   async afterUpdate (event: UpdateEvent<Video>) {
-    console.log('> channel subscriber - after update')
+    // console.log('> channel subscriber - after update')
     const video = event.entity
     const changeColumns = event.updatedColumns.map(e => e.propertyName)
 
@@ -39,12 +38,12 @@ export class VideoSubscriber implements EntitySubscriberInterface<Video> {
     if (VideoMeta.isOwnColumn(...changeColumns)) {
       const meta = video.createVideoMeta()
       await event.queryRunner.manager.save(meta)
-      console.log('>> save video_meta')
+      // console.log('>> save video_meta')
     }
 
     // stat は常時更新
     const stat = video.createVideoStat()
     await event.queryRunner.manager.save(stat)
-    console.log('>> save video_stat')
+    // console.log('>> save video_stat')
   }
 }

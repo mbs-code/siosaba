@@ -4,15 +4,36 @@ import * as dayjs from 'dayjs'
 import { parse as parseDuration, toSeconds } from 'iso8601-duration'
 
 import { ExtendEntity } from '../../database/entity/ExtendEntity' // eslint-disable-line no-unused-vars
+import dataMapping from '../lib/dataMapping'
 
 export default abstract class Inserter<T extends ExtendEntity> {
   async exec (param: { ids?: string[] }) {
-    const items = await this.fetch(param.ids)
-    for (const item of items) {
+    const keys = param.ids
+
+    // data fetch
+    const items = await this.fetch(keys)
+    console.log(`fetch: ${items.length}`)
+
+    // データマッピング (ID削除対策)
+    const map = dataMapping(keys, items, (item) => {
+      return get(item, 'id')
+    })
+
+    // 各値ごとに処理
+    for (const key of keys) {
       try {
-        const insert = await this.insert(item)
+        const item = map[key]
+        if (item) {
+          await this.insert(key, map[key])
+          const title = get(item, 'snippet.title')
+          console.log(`save - [${key}] ${title}`)
+        } else {
+          await this.delete(key, map[key])
+          const title = get(item, 'snippet.title')
+          console.log(`del - [${key}] ${title}`)
+        }
       } catch (e) {
-        const key = get(item, 'id')
+        const item = map[key]
         const title = get(item, 'snippet.title')
         console.log(`error - [${key}] ${title}`)
       }
@@ -21,7 +42,9 @@ export default abstract class Inserter<T extends ExtendEntity> {
 
   protected abstract async fetch(ids: string[]) : Promise<object[]>
 
-  protected abstract async insert(item: object) : Promise<T>
+  protected abstract async insert(key: string, item: object) : Promise<T>
+
+  protected abstract async delete(key: string, item: object) : Promise<T|any>
 
   ///
 
