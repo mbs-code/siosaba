@@ -2,16 +2,26 @@ import { createConnection } from 'typeorm'
 import 'reflect-metadata'
 
 import * as Koa from 'koa'
-import * as Router from 'koa-router'
 import { userAgent, UserAgentContext } from 'koa-useragent' // eslint-disable-line no-unused-vars
 
 import * as tableify from 'tableify'
 
-import routes from './routes'
+import router from './routes'
 
+// init database
 createConnection().then(async (connection) => {
   const app = new Koa()
-  const router = new Router()
+
+  // error handlong
+  app.use(async (ctx, next) => {
+    try {
+      await next()
+    } catch (err) {
+      ctx.status = err.status || 500
+      ctx.body = err.message
+      ctx.app.emit('error', err, ctx)
+    }
+  })
 
   // visualize APi table
   app.use(userAgent)
@@ -23,10 +33,9 @@ createConnection().then(async (connection) => {
     }
   })
 
+  // routing
   app.use(router.routes())
   app.use(router.allowedMethods())
-
-  app.use(routes.routes())
   app.use(async (ctx, next) => {
     ctx.body = 'no route!'
   })
