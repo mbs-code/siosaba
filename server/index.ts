@@ -30,6 +30,12 @@ createConnection().then(async (connection) => {
     if (ctx.userAgent.isDesktop) {
       ctx.type = 'text/html'
       ctx.body = tableify(ctx.body)
+      // 簡易CSS
+      ctx.body += '<style>'
+      ctx.body += 'table{border-collapse: collapse;}'
+      ctx.body += 'td{white-space:nowrap; overflow:hidden; text-overflow: ellipsis; min-width: 40px; max-width:400px; border: solid 1px gray;}'
+      ctx.body += '.array table{display: block; overflow-y:scroll; height: 2em;}'
+      ctx.body += '</style>'
     }
   })
 
