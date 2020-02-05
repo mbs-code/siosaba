@@ -43,6 +43,7 @@
     "koa-useragent": "^4.0.0",
     "mysql": "^2.17.1",
     "reflect-metadata": "^0.1.13",
+    "rss-parser": "^3.7.5",
     "tableify": "^1.1.0",
     "tsconfig-paths": "^3.9.0",
     "typeorm": "^0.2.22"

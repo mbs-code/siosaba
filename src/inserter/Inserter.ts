@@ -19,7 +19,7 @@ export default abstract class Inserter<T extends ExtendEntity> {
       return get(item, 'id')
     })
 
-    // 各値ごとに処理
+    // 各値ごとに パースして保存する
     for (const key of keys) {
       try {
         const item = map[key]

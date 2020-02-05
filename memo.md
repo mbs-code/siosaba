@@ -505,6 +505,20 @@ export class ExtendEntity extends Entity {
 }
 ```
 
+### RSS parse
+
+[rbren/rss\-parser: A lightweight RSS parser, for Node and the browser](https://github.com/rbren/rss-parser)
+
+これがいいかも
+
+```bash
+$ npm install --save rss-parser
+```
+
+
+
+
+
 
 
 ----
@@ -591,4 +605,8 @@ console.log('listen to http://localhost:3000')
 [typescript\-koa\-example/index\.ts at master · typeorm/typescript\-koa\-example](https://github.com/typeorm/typescript-koa-example/blob/master/src/index.ts)
 
 DB との接続を確立したあとにサーバーを立ち上げるのがベストっぽい
+
+
+
+
 

@@ -1,7 +1,10 @@
 import { createConnection } from 'typeorm'
 import 'reflect-metadata'
 
+import { get } from 'dot-prop'
 import { google } from 'googleapis'
+
+import ChannelFeedCollector from './collector/ChannelFeedCollector'
 
 import ChannelInserter from './inserter/ChannelInserter'
 import VideoInserter from './inserter/VideoInserter'
@@ -15,13 +18,21 @@ import VideoInserter from './inserter/VideoInserter'
     auth: process.env.GOOGLE_API_KEY
   })
 
-  const cids = ['UC1CfXB_kRs3C-zaeTG3oGyg']
-  const ci = new ChannelInserter(youtube)
-  await ci.exec({ ids: cids })
+  const cids = ['UC1CfXB_kRs3C-zaeTG3oGyg', 'UC1opHUrw8rvnsadT-iGp7Cg']
+  const cfc = new ChannelFeedCollector({ strict: false })
+  const feedIds = await cfc.exec(cids)
 
-  const vids = ['r0VBSvkcV7s', 'W1pezP_cI4w', '7u5LqiFPdHs', 'cNZ6PfS64c8']
   const vi = new VideoInserter(youtube)
-  await vi.exec({ ids: vids })
+  await vi.exec({ ids: feedIds })
+
+  // const cids = ['UC1CfXB_kRs3C-zaeTG3oGyg']
+  // const ci = new ChannelInserter(youtube)
+  // await ci.exec({ ids: cids })
+
+  // const vids = ['U_Fe0ICGNdcs']
+  // const vi = new VideoInserter(youtube)
+  // await vi.exec({ ids: vids })
+
 })().then(() => {
   console.log()
   process.exit(0)
