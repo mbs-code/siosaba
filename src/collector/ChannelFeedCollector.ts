@@ -14,7 +14,7 @@ export default class ChannelFeedCollector extends Collector {
     this.rssParser = new RssParser()
   }
 
-  async fetch (id: string) {
+  async fetch (id?: string) {
     // DB に存在するか確認する (strict モード)
     if (this.strict) {
       const channel = await Channel.findOne({ key: id })
@@ -32,7 +32,7 @@ export default class ChannelFeedCollector extends Collector {
 
   async parse (item: object) {
     const feedId: string = get(item, 'id', '')
-    const id = feedId.slice(9) // remove yt:video:
-    return id
+    const key = feedId.slice(9) // remove yt:video:
+    return key
   }
 }
