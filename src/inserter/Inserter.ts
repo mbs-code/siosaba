@@ -40,11 +40,11 @@ export default abstract class Inserter<T extends ExtendEntity> {
     }
   }
 
-  protected abstract async fetch(ids: string[]) : Promise<object[]>
+  protected abstract async fetch (ids: string[]) : Promise<object[]>
 
-  protected abstract async insert(key: string, item: object) : Promise<T>
+  protected abstract async insert (key: string, item: object) : Promise<T>
 
-  protected abstract async delete(key: string, item: object) : Promise<T|any>
+  protected abstract async delete (key: string, item: object) : Promise<T|any>
 
   ///
 
