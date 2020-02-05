@@ -317,6 +317,12 @@ export class DiffEntity extends BaseEntity {
 
 
 
+### find() で抽出する column を選択する方法
+[How to select only few related table columns with find\(\) method? · Issue \#2385 · typeorm/typeorm](https://github.com/typeorm/typeorm/issues/2385)
+
+もっと詳しく
+[typeorm/find\-options\.md at master · typeorm/typeorm](https://github.com/typeorm/typeorm/blob/master/docs/find-options.md)
+
 ----
 ----
 # YouTube 周り

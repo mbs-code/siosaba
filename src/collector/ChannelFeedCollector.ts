@@ -3,6 +3,7 @@ import * as RssParser from 'rss-parser'
 
 import Collector from './Collector'
 import { Channel } from '../../database/entity/Channel'
+import { Video } from '../../database/entity/Video'
 
 export default class ChannelFeedCollector extends Collector {
   strict: boolean
@@ -14,7 +15,7 @@ export default class ChannelFeedCollector extends Collector {
     this.rssParser = new RssParser()
   }
 
-  async fetch (id?: string) {
+  protected async fetch (id?: string) {
     // DB に存在するか確認する (strict モード)
     if (this.strict) {
       const channel = await Channel.findOne({ key: id })
@@ -23,16 +24,26 @@ export default class ChannelFeedCollector extends Collector {
       }
     }
 
+    // url 生成
+    const url = `https://www.youtube.com/feeds/videos.xml?channel_id=${id}`
+    console.log(`url: ${url}`)
+
     // APIを叩く
-    const feed = await this.rssParser.parseURL(`https://www.youtube.com/feeds/videos.xml?channel_id=${id}`)
+    const feed = await this.rssParser.parseURL(url)
 
     const items: object[] = get(feed, 'items')
     return items
   }
 
-  async parse (item: object) {
+  protected async parse (item: object) {
     const feedId: string = get(item, 'id', '')
     const key = feedId.slice(9) // remove yt:video:
     return key
+  }
+
+  protected async filter (key: string) {
+    // DB に存在するならスキップする
+    const count = await Video.count({ key: key })
+    return count === 0
   }
 }
