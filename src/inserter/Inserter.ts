@@ -1,42 +1,68 @@
 import { get } from 'dot-prop'
+import * as chunk from 'chunk'
 
 import * as dayjs from 'dayjs'
 import { parse as parseDuration, toSeconds } from 'iso8601-duration'
+
+import { cli as Logger } from '../lib/logger'
 
 import { ExtendEntity } from '../../database/entity/ExtendEntity' // eslint-disable-line no-unused-vars
 import dataMapping from '../lib/dataMapping'
 
 export default abstract class Inserter<T extends ExtendEntity> {
-  async exec (param: { ids?: string[] }) {
-    const keys = param.ids
+  // 一度に処理する上限量
+  protected limit:number = 50
 
+  async exec (param: { ids?: string[] }) {
+    Logger.debug('start <%s>', this.constructor.name)
+
+    const keys = param.ids
+    const chunks = chunk(keys, this.limit)
+
+    const items = []
+    let idx = 0
+    for (const chunk of chunks) {
+      Logger.trace('[%d/%d]', idx + 1, chunks.length)
+      const ret = await this.loop(chunk)
+      items.push(...ret)
+
+      idx++
+    }
+
+    Logger.debug('finish <%s>', this.constructor.name)
+  }
+
+  private async loop (chunk: string[]): Promise<any> {
     // data fetch
-    const items = await this.fetch(keys)
-    console.log(`fetch: ${items.length}`)
+    const items = await this.fetch(chunk)
+    Logger.trace('- fetch: %d items', items.length)
 
     // データマッピング (ID削除対策)
-    const map = dataMapping(keys, items, (item) => {
+    const map = dataMapping(chunk, items, (item) => {
       return get(item, 'id')
     })
 
     // 各値ごとに パースして保存する
-    for (const key of keys) {
+    let idx = 0
+    for (const key of chunk) {
       try {
         const item = map[key]
         if (item) {
           await this.insert(key, map[key])
           const title = get(item, 'snippet.title')
-          console.log(`save - [${key}] ${title}`)
+          Logger.trace('- save: [%s] %s', key, title)
         } else {
           await this.delete(key, map[key])
           const title = get(item, 'snippet.title')
-          console.log(`del - [${key}] ${title}`)
+          Logger.trace('- del: [%s] %s', key, title)
         }
       } catch (e) {
         const item = map[key]
         const title = get(item, 'snippet.title')
-        console.log(`error - [${key}] ${title}`)
+        Logger.trace('- error: [%s] %s', key, title)
       }
+
+      idx++
     }
   }
 

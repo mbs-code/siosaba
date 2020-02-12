@@ -1,50 +1,56 @@
 import { filterSeries } from 'p-iteration'
 
+import { cli as Logger } from '../lib/logger'
+
 export default abstract class Collector {
   async exec (ids?: string[]) {
-    const values = []
+    Logger.debug('start <%s>', this.constructor.name)
 
-    if (Array.isArray(ids)) {
-      // 配列各IDごとに処理
-      for (const id of ids) {
+    const items = []
+    if (Array.isArray(ids) && ids.length) {
+      // 配列なら 各IDごとに処理
+      for (let i = 0; i < ids.length; i++) {
+        const id = ids[i]
+
+        Logger.trace('[%d/%d] id: %s', i + 1, ids.length, id)
         const ret = await this.loop(id)
-        values.push(...ret)
+        items.push(...ret)
       }
     } else {
-      // それ以外なら一回だけ実行しとく (空実行用)
+      // それ以外なら 一回だけ実行しとく (空実行用)
       // 不必要なら fetch で throw する
       const ret = await this.loop()
-      values.push(...ret)
+      items.push(...ret)
     }
+    Logger.debug('collect %d items', items.length)
 
     // フィルタリング (重複、空要素を削除)
-    const filterValues = await filterSeries(values, async (val, index, array) => {
+    const filterItems = await filterSeries(items, async (val, index, array) => {
       const filter = this.filter(val)
       return val && array.indexOf(val) === index && filter
     })
+    Logger.debug('filtered %d items', filterItems.length)
 
-    console.log(filterValues)
-    console.log(`> collect: ${filterValues.length}`)
-    return filterValues
+    Logger.debug('finish <%s>', this.constructor.name)
+    return filterItems
   }
 
   private async loop (id?: string): Promise<any[]> {
-    console.log(`> run: ${id}`)
-    const values = []
-
     // data fetch
     const items = await this.fetch(id)
-    console.log(`fetch: ${items.length}`)
+    Logger.trace('- fetch: %d items', items.length)
 
     // パースして保存する
+    const parseItems = []
     for (const item of items) {
       const key = await this.parse(item)
       if (key) {
-        values.push(key)
+        parseItems.push(key)
       }
     }
 
-    return values
+    Logger.trace('- parse: %d items', parseItems.length)
+    return parseItems
   }
 
   protected abstract async fetch (id?: string) : Promise<object[]>

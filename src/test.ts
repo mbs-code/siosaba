@@ -6,25 +6,29 @@ import { google } from 'googleapis'
 
 import ChannelCollector from './collector/ChannelCollector'
 import ChannelFeedCollector from './collector/ChannelFeedCollector'
-import LiveVideoCollector from './collector/LiveVideoCollector'
+// import LiveVideoCollector from './collector/LiveVideoCollector'
 
 import ChannelInserter from './inserter/ChannelInserter'
 import VideoInserter from './inserter/VideoInserter'
+import Cron from './cron'
 
 (async () => {
   console.log('start')
   const conn = await createConnection()
 
-  const youtube = google.youtube({
-    version: 'v3',
-    auth: process.env.GOOGLE_API_KEY
-  })
+  // const youtube = google.youtube({
+  //   version: 'v3',
+  //   auth: process.env.GOOGLE_API_KEY
+  // })
+
+  const cron = new Cron()
+  await cron.exec()
 
   // ■ live video collect -> video insert
-  const lvc = new LiveVideoCollector()
-  const vids = await lvc.exec()
-  const vi = new VideoInserter(youtube)
-  await vi.exec({ ids: vids })
+  // const lvc = new LiveVideoCollector()
+  // const vids = await lvc.exec()
+  // const vi = new VideoInserter(youtube)
+  // await vi.exec({ ids: vids })
 
   // ■ feed collect -> video insert
   // const cc = new ChannelCollector()
