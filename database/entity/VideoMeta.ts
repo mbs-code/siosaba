@@ -47,11 +47,12 @@ export class VideoMeta extends ExtendEntity {
   @Column({ type: 'int', unsigned: true })
   duration: number
 
-  @Column({ type: 'datetime', precision: 3, nullable: true, name: 'start_time' })
-  startTime: Date // DB 抽出用
+  // この2つは計算で導けるので無視する(必要ない)
+  // @Column({ type: 'datetime', precision: 3, nullable: true, name: 'start_time' })
+  // startTime: Date // DB 抽出用
 
-  @Column({ type: 'datetime', precision: 3, nullable: true, name: 'end_time' })
-  endTime: Date // DB 抽出用
+  // @Column({ type: 'datetime', precision: 3, nullable: true, name: 'end_time' })
+  // endTime: Date // DB 抽出用
 
   @Column({ type: 'datetime', precision: 3, nullable: true, name: 'scheduled_start_time' })
   scheduledStartTime: Date
