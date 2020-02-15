@@ -4,7 +4,7 @@ import { cli as Logger } from '../lib/logger'
 
 export default abstract class Collector {
   async exec (ids?: string[]) {
-    Logger.debug('start <%s>', this.constructor.name)
+    Logger.debug('<%s> start', this.constructor.name)
 
     const items = []
     if (Array.isArray(ids) && ids.length) {
@@ -31,7 +31,7 @@ export default abstract class Collector {
     })
     Logger.debug('filtered %d items', filterItems.length)
 
-    Logger.debug('finish <%s>', this.constructor.name)
+    Logger.debug('<%s> finish', this.constructor.name)
     return filterItems
   }
 

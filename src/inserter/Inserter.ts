@@ -1,5 +1,6 @@
 import { get } from 'dot-prop'
 import * as chunk from 'chunk'
+import * as truncate from 'cli-truncate'
 
 import * as dayjs from 'dayjs'
 import { parse as parseDuration, toSeconds } from 'iso8601-duration'
@@ -14,7 +15,7 @@ export default abstract class Inserter<T extends ExtendEntity> {
   protected limit:number = 50
 
   async exec (param: { ids?: string[] }) {
-    Logger.debug('start <%s>', this.constructor.name)
+    Logger.debug('<%s> start', this.constructor.name)
 
     const keys = param.ids
     const chunks = chunk(keys, this.limit)
@@ -22,20 +23,21 @@ export default abstract class Inserter<T extends ExtendEntity> {
     const items = []
     let idx = 0
     for (const chunk of chunks) {
-      Logger.trace('[%d/%d]', idx + 1, chunks.length)
+      Logger.trace('[%d/%d] %d items %s', idx + 1, chunks.length, chunk.length, truncate(JSON.stringify(chunk), 26))
+
       const ret = await this.loop(chunk)
       items.push(...ret)
 
       idx++
     }
 
-    Logger.debug('finish <%s>', this.constructor.name)
+    Logger.debug('<%s> finish', this.constructor.name)
   }
 
   private async loop (chunk: string[]): Promise<any> {
     // data fetch
     const items = await this.fetch(chunk)
-    Logger.trace('- fetch: %d items', items.length)
+    Logger.trace('fetch: %d items', items.length)
 
     // データマッピング (ID削除対策)
     const map = dataMapping(chunk, items, (item) => {
@@ -45,21 +47,24 @@ export default abstract class Inserter<T extends ExtendEntity> {
     // 各値ごとに パースして保存する
     let idx = 0
     for (const key of chunk) {
+      Logger.trace('%d/%d, id: %s', idx + 1, chunk.length, key)
+
       try {
         const item = map[key]
         if (item) {
           await this.insert(key, map[key])
           const title = get(item, 'snippet.title')
-          Logger.trace('- save: [%s] %s', key, title)
+          Logger.debug('%d/%d, save: [%s] %s', idx + 1, chunk.length, key, title)
         } else {
           await this.delete(key, map[key])
           const title = get(item, 'snippet.title')
-          Logger.trace('- del: [%s] %s', key, title)
+          Logger.debug('%d/%d, del: [%s] %s', idx + 1, chunk.length, key, title)
         }
       } catch (e) {
         const item = map[key]
         const title = get(item, 'snippet.title')
-        Logger.trace('- error: [%s] %s', key, title)
+        Logger.warn('%d/%d, error: [%s] %s', idx + 1, chunk.length, key, title)
+        Logger.warn(e)
       }
 
       idx++
