@@ -4,11 +4,6 @@ import VideoCollector from './VideoCollector'
 import { VideoType } from '../../database/entity/type/VideoType'
 import dayjs from 'dayjs'
 
-interface upcomingVideoQueryInterface {
-  type: VideoType
-  startTime?: any
-}
-
 export default class UpcomingVideoCollector extends VideoCollector {
   limitDate: Date|dayjs.Dayjs
   dateLength: number // minute
@@ -20,7 +15,7 @@ export default class UpcomingVideoCollector extends VideoCollector {
   }
 
   protected getWhereQuery () {
-    const query: upcomingVideoQueryInterface = {
+    const query = <any>{
       type: VideoType.UPCOMING
     }
 
