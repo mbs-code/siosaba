@@ -1,5 +1,8 @@
 import { get } from 'dot-prop'
 import * as RssParser from 'rss-parser'
+import * as sleep from 'sleep'
+
+import { cli as Logger } from '../lib/logger'
 
 import Collector from './Collector'
 import { Channel } from '../../database/entity/Channel'
@@ -15,6 +18,10 @@ export default class ChannelFeedCollector extends Collector {
     this.rssParser = new RssParser()
   }
 
+  protected async onLoop () {
+    await sleep(500)
+  }
+
   protected async fetch (id?: string) {
     // DB に存在するか確認する (strict モード)
     if (this.strict) {
@@ -26,7 +33,7 @@ export default class ChannelFeedCollector extends Collector {
 
     // url 生成
     const url = `https://www.youtube.com/feeds/videos.xml?channel_id=${id}`
-    console.log(`url: ${url}`)
+    Logger.trace(`- url: ${url}`)
 
     // APIを叩く
     const feed = await this.rssParser.parseURL(url)

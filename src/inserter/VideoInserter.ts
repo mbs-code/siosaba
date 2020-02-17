@@ -7,6 +7,7 @@ import Inserter from './Inserter'
 import { Video } from '../../database/entity/Video'
 import { VideoType } from '../../database/entity/type/VideoType'
 import { VideoStatus } from '../../database/entity/type/VideoStatus'
+import { Channel } from '../../database/entity/Channel'
 
 export default class VideoInserter extends Inserter<Video> {
   youtube: youtubeV3.Youtube
@@ -49,10 +50,6 @@ export default class VideoInserter extends Inserter<Video> {
     v.tags = get(item, 'snippet.tags')
     v.liveChatKey = v.liveChatKey || get(item, 'liveStreamingDetails.activeLiveChatId') // 値が入ったら上書き禁止
     v.publishedAt = this.parseDatetime(get(item, 'snippet.publishedAt'))
-
-    const stEdTime = this._calcStartEndTime(v)
-    v.startTime = stEdTime.start
-    v.endTime = stEdTime.end
     ///
     v.view = get(item, 'statistics.viewCount')
     v.like = get(item, 'statistics.likeCount')
@@ -60,6 +57,18 @@ export default class VideoInserter extends Inserter<Video> {
     v.favorite = get(item, 'statistics.favoriteCount')
     v.comment = get(item, 'statistics.commentCount')
     v.concurrentViewers = get(item, 'liveStreamingDetails.concurrentViewers')
+
+    // start と end の計算
+    const stEdTime = this._calcStartEndTime(v)
+    v.startTime = stEdTime.start
+    v.endTime = stEdTime.end
+
+    // channel との関連付け
+    const channelKey: string = get(item, 'snippet.channelId')
+    const channel = await Channel.findOne({ key: channelKey })
+    if (channel) {
+      v.channel = channel
+    }
 
     await v.save()
     return v

@@ -10,6 +10,11 @@ export default abstract class Collector {
     if (Array.isArray(ids) && ids.length) {
       // 配列なら 各IDごとに処理
       for (let i = 0; i < ids.length; i++) {
+        // もし 1回目以外なら onLoop
+        if (i !== 0) {
+          await this.onLoop()
+        }
+
         const id = ids[i]
 
         Logger.trace('[%d/%d] id: %s', i + 1, ids.length, id)
@@ -60,5 +65,9 @@ export default abstract class Collector {
   protected async filter (key: string) : Promise<boolean> {
     // do override!
     return true
+  }
+
+  protected async onLoop () {
+    // do override
   }
 }

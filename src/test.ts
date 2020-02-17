@@ -10,7 +10,7 @@ import ChannelFeedCollector from './collector/ChannelFeedCollector'
 
 import ChannelInserter from './inserter/ChannelInserter'
 import VideoInserter from './inserter/VideoInserter'
-import Cron from './cron'
+import Command from './command'
 
 (async () => {
   console.log('start')
@@ -21,8 +21,8 @@ import Cron from './cron'
   //   auth: process.env.GOOGLE_API_KEY
   // })
 
-  const cron = new Cron()
-  await cron.exec()
+  const cron = new Command()
+  await cron.exec(new Date('2020-02-15 19:05:00'))
 
   // ■ live video collect -> video insert
   // const lvc = new LiveVideoCollector()

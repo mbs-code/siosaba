@@ -22,29 +22,29 @@ export class ChannelSubscriber implements EntitySubscriberInterface<Channel> {
     // meta の保存
     const meta = channel.createChannelMeta()
     await event.queryRunner.manager.save(meta)
-    Logger.trace(`> save channel_meta { id: ${meta.id} }`)
+    Logger.trace(`> - save channel_meta { id: ${meta.id} }`)
 
     // stat の保存
     const stat = channel.createChannelStat()
     await event.queryRunner.manager.save(stat)
-    Logger.trace(`> save channel_stat { id: ${stat.id} }`)
+    Logger.trace(`> - save channel_stat { id: ${stat.id} }`)
   }
 
   async afterUpdate (event: UpdateEvent<Channel>) {
     const channel = event.entity
     const changeColumns = event.updatedColumns.map(e => e.propertyName)
-    Logger.trace(`> change: ${JSON.stringify(changeColumns)}`)
+    Logger.trace(`> - change: ${JSON.stringify(changeColumns)}`)
 
     // meta は更新要素があったときだけ
     if (ChannelMeta.isOwnColumn(...changeColumns)) {
       const meta = channel.createChannelMeta()
       await event.queryRunner.manager.save(meta)
-      Logger.trace(`> save channel_meta { id: ${meta.id} }`)
+      Logger.trace(`> - save channel_meta { id: ${meta.id} }`)
     }
 
     // stat は常時更新
     const stat = channel.createChannelStat()
     await event.queryRunner.manager.save(stat)
-    Logger.trace(`> save channel_stat { id: ${stat.id} }`)
+    Logger.trace(`> - save channel_stat { id: ${stat.id} }`)
   }
 }

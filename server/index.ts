@@ -1,12 +1,15 @@
 import { createConnection } from 'typeorm'
 import 'reflect-metadata'
 
+import * as yn from 'yn'
+
 import * as Koa from 'koa'
 import { userAgent, UserAgentContext } from 'koa-useragent' // eslint-disable-line no-unused-vars
 
 import * as tableify from 'tableify'
 
 import router from './routes'
+import Cron from '../src/cron'
 
 // init database
 createConnection().then(async (connection) => {
@@ -46,6 +49,13 @@ createConnection().then(async (connection) => {
     ctx.body = 'no route!'
   })
 
+  // awake server
   app.listen(3000)
   console.log('listen to http://localhost:3000')
+
+  if (yn(process.env.RUN_BATCH)) {
+    // awake batch process
+    const cron = new Cron() // eslint-disable-line no-unused-vars
+    console.log('run cron batch')
+  }
 }).catch(error => console.log('TypeORM connection error: ', error))
