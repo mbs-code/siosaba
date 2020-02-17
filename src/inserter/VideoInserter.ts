@@ -1,5 +1,5 @@
 import { get } from 'dot-prop'
-import * as dayjs from 'dayjs'
+import dayjs from 'dayjs'
 
 import { youtube_v3 as youtubeV3 } from 'googleapis' // eslint-disable-line no-unused-vars
 

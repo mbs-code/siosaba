@@ -1,8 +1,8 @@
 import { get } from 'dot-prop'
-import * as chunk from 'chunk'
-import * as truncate from 'cli-truncate'
+import chunk from 'chunk'
+import truncate from 'cli-truncate'
 
-import * as dayjs from 'dayjs'
+import dayjs from 'dayjs'
 import { parse as parseDuration, toSeconds } from 'iso8601-duration'
 
 import { cli as Logger } from '../lib/logger'

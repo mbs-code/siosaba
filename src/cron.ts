@@ -1,4 +1,4 @@
-import * as schedule from 'node-schedule'
+import schedule from 'node-schedule'
 import Command from './command'
 
 export default class Cron {

@@ -1,8 +1,8 @@
-import * as os from 'os'
-import * as path from 'path'
-import * as log4js from 'log4js'
-import * as dayjs from 'dayjs'
-import * as printf from 'printf'
+import os from 'os'
+import path from 'path'
+import log4js from 'log4js'
+import dayjs from 'dayjs'
+import printf from 'printf'
 import chalk from 'chalk'
 
 const isCLI = process.env.NODE_ENV === 'cli'
@@ -35,7 +35,9 @@ log4js.addLayout('origin', function ({ addColor }) {
 
     const dateStr = dayjs(date).format('YYYY-MM-DD hh:mm:ss.SSS')
     // const message = e.data.join(' ') // データはスペース区切り
-    const message = printf(e.data[0], ...e.data.slice(1)) // データはprintf形式で
+    const message = Array.isArray(e.data) && e.data.length > 1 // データはprintf形式で
+      ? printf(e.data[0], ...e.data.slice(1))
+      : e.data
     const levelStr = level.padEnd(5).slice(0, 5) // 5文字
     const color = levelColors[level]
 

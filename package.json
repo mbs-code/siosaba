@@ -34,9 +34,11 @@
     "typescript": "^3.7.5"
   },
   "dependencies": {
+    "@types/chunk": "0.0.0",
     "chunk": "0.0.2",
     "cli-truncate": "^2.1.0",
     "dayjs": "^1.8.19",
+    "delay": "^4.3.0",
     "dot-prop": "^5.2.0",
     "dotenv": "^8.2.0",
     "googleapis": "^47.0.0",
@@ -51,7 +53,6 @@
     "printf": "^0.5.2",
     "reflect-metadata": "^0.1.13",
     "rss-parser": "^3.7.5",
-    "sleep": "^6.1.0",
     "tableify": "^1.1.0",
     "tsconfig-paths": "^3.9.0",
     "typeorm": "^0.2.22",

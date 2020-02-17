@@ -1,5 +1,5 @@
 
-import * as Router from 'koa-router'
+import Router from 'koa-router'
 
 import { Video } from '../../database/entity/Video'
 import { VideoStat } from './../../database/entity/VideoStat'

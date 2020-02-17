@@ -1,12 +1,12 @@
 import { createConnection } from 'typeorm'
 import 'reflect-metadata'
 
-import * as yn from 'yn'
+import yn from 'yn'
 
-import * as Koa from 'koa'
+import Koa from 'koa'
 import { userAgent, UserAgentContext } from 'koa-useragent' // eslint-disable-line no-unused-vars
 
-import * as tableify from 'tableify'
+import tableify from 'tableify'
 
 import router from './routes'
 import Cron from '../src/cron'

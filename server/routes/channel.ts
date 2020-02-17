@@ -1,5 +1,5 @@
 
-import * as Router from 'koa-router'
+import Router from 'koa-router'
 
 import { Channel } from '../../database/entity/Channel'
 import { ChannelStat } from './../../database/entity/ChannelStat'

@@ -1,6 +1,6 @@
 import { get } from 'dot-prop'
-import * as RssParser from 'rss-parser'
-import * as sleep from 'sleep'
+import RssParser from 'rss-parser'
+import delay from 'delay'
 
 import { cli as Logger } from '../lib/logger'
 
@@ -19,7 +19,7 @@ export default class ChannelFeedCollector extends Collector {
   }
 
   protected async onLoop () {
-    await sleep(500)
+    await delay(500)
   }
 
   protected async fetch (id?: string) {

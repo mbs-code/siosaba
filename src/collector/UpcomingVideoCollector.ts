@@ -2,7 +2,7 @@ import { LessThanOrEqual } from 'typeorm'
 
 import VideoCollector from './VideoCollector'
 import { VideoType } from '../../database/entity/type/VideoType'
-import dayjs = require('dayjs')
+import dayjs from 'dayjs'
 
 interface upcomingVideoQueryInterface {
   type: VideoType

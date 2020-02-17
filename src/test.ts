@@ -22,7 +22,7 @@ import Command from './command'
   // })
 
   const cron = new Command()
-  await cron.exec(new Date('2020-02-15 19:05:00'))
+  await cron.exec(new Date('2020-02-15 19:00:00'))
 
   // ■ live video collect -> video insert
   // const lvc = new LiveVideoCollector()
