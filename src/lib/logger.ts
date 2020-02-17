@@ -27,11 +27,15 @@ const coloring = function (color, text) {
   return text
 }
 
+interface ExtendLoggingEvent extends log4js.LoggingEvent {
+  callStack?: any
+}
+
 log4js.addLayout('origin', function ({ addColor }) {
-  return function (e: log4js.LoggingEvent) {
+  return function (e: ExtendLoggingEvent) {
     const date = new Date(e.startTime)
     const level = e.level.levelStr.toUpperCase() // 大文字
-    const hasCallStack = e.hasOwnProperty('callStack') // callStack を持っているか
+    const hasCallStack = e.callStack // callStack を持っているか
 
     const dateStr = dayjs(date).format('YYYY-MM-DD hh:mm:ss.SSS')
     // const message = e.data.join(' ') // データはスペース区切り
@@ -51,7 +55,7 @@ log4js.addLayout('origin', function ({ addColor }) {
     // スタックトレース
     let suffix = ''
     if (hasCallStack && color.trace) {
-      const callStack = e.callStack
+      const callStack = e.callStack // eslint-disable-line no-unused-vars
       suffix += os.EOL
       suffix += addColor ? coloring(color.trace, callStack) : callStack
     }
