@@ -19,7 +19,7 @@ export default class ChannelFeedCollector extends Collector {
   }
 
   protected async onLoop () {
-    await delay(500)
+    await delay(1000)
   }
 
   protected async fetch (id?: string) {
