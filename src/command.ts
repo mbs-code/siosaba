@@ -24,32 +24,56 @@ export default class Command {
 
   /// ////////////////////////////////////////////////////////////
 
+  async updateChannels (channelIds?: string[]) {
+    Logger.info('RUN - Update channels. ---------------------------')
+    let cids = channelIds
+    // 引数が undefined なら全件取得する
+    if (!cids) {
+      const cc = new ChannelCollector()
+      cids = await cc.exec(channelIds)
+    }
+
+    await this.insertChannels(cids)
+  }
+
+  async updateVideos (videoIds?: string[]) {
+    Logger.info('RUN - Update videos. -----------------------------')
+    let vids = videoIds
+    // 引数が undefined なら全件取得する
+    if (!vids) {
+      const cc = new VideoCollector()
+      vids = await cc.exec(videoIds)
+    }
+
+    await this.insertVideos(vids)
+  }
+
   async updateUpcomingVideos () {
-    Logger.info('RUN - Update upcoming videos.')
+    Logger.info('RUN - Update upcoming videos. --------------------')
     const uvc = new UpcomingVideoCollector()
     const liveVids = await uvc.exec()
 
-    await this.updateVideos(liveVids)
+    await this.insertVideos(liveVids)
   }
 
   async updateSoonUpcomingVideos (date: Date|dayjs.Dayjs) {
-    Logger.info('RUN - Update soon upcoming videos.')
+    Logger.info('RUN - Update soon upcoming videos. ---------------')
     const suvc = new UpcomingVideoCollector(date, 60)
     const liveVids = await suvc.exec()
 
-    await this.updateVideos(liveVids)
+    await this.insertVideos(liveVids)
   }
 
   async updateLiveVideos () {
-    Logger.info('RUN - Update live videos.')
+    Logger.info('RUN - Update live videos. ------------------------')
     const lvc = new LiveVideoCollector()
     const liveVids = await lvc.exec()
 
-    await this.updateVideos(liveVids)
+    await this.insertVideos(liveVids)
   }
 
   async updateFeedVideos (channelIds?: string[]) {
-    Logger.info('RUN - Collect feed videos.')
+    Logger.info('RUN - Collect feed videos. -----------------------')
     let cids = channelIds
     // 引数が undefined なら全件取得する
     if (!cids) {
@@ -60,35 +84,19 @@ export default class Command {
     const cfc = new ChannelFeedCollector({ strict: false })
     const feedVids = await cfc.exec(cids)
 
-    await this.updateVideos(feedVids)
+    await this.insertVideos(feedVids)
   }
 
   /// ////////////////////////////////////////////////////////////
 
-  async updateChannels (channelIds?: string[]) {
-    Logger.info('RUN - Update channels.')
-    let cids = channelIds
-    // 引数が undefined なら全件取得する
-    if (!cids) {
-      const cc = new ChannelCollector()
-      cids = await cc.exec(channelIds)
-    }
-
+  private async insertChannels (channelds: string[]) {
     const ci = new ChannelInserter(this.youtube)
-    await ci.exec({ ids: cids })
+    await ci.exec({ ids: channelds })
   }
 
-  async updateVideos (videoIds?: string[]) {
-    Logger.info('RUN - Update videos.')
-    let vids = videoIds
-    // 引数が undefined なら全件取得する
-    if (!vids) {
-      const cc = new VideoCollector()
-      vids = await cc.exec(videoIds)
-    }
-
-    const vi = new VideoInserter(this.youtube)
-    await vi.exec({ ids: vids })
+  private async insertVideos (channelds: string[]) {
+    const ci = new VideoInserter(this.youtube)
+    await ci.exec({ ids: channelds })
   }
 
   /// ////////////////////////////////////////////////////////////
