@@ -110,6 +110,6 @@ log4js.configure({
 export default log4js
 export const EOL = os.EOL
 export const plane = log4js.getLogger()
-export const cli = log4js.getLogger('cli')
-export const cron = log4js.getLogger('cron')
-export const batch = log4js.getLogger('batch')
+export const cli = log4js.getLogger('CLI')
+export const cron = log4js.getLogger('CRON')
+// export const batch = log4js.getLogger('BATCH')

@@ -1,7 +1,7 @@
 import { google, youtube_v3 as youtubeV3 } from 'googleapis' // eslint-disable-line no-unused-vars
 
 import dayjs from 'dayjs'
-import { cli as Logger, EOL } from './lib/logger'
+import { cron as Logger, EOL } from './lib/logger'
 
 import ChannelCollector from './collector/ChannelCollector'
 import VideoCollector from './collector/VideoCollector'
