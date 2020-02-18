@@ -1,6 +1,7 @@
 import { createConnection } from 'typeorm'
 import 'reflect-metadata'
 
+import argv from 'argv'
 import yn from 'yn'
 
 import Koa from 'koa'
@@ -11,8 +12,20 @@ import tableify from 'tableify'
 import router from './routes'
 import Cron from '../src/cron'
 
+// init command
+const args = argv.option([
+  { name: 'host', short: 'h', type: 'string', description: 'API Host name. (default: localhost)' },
+  { name: 'port', short: 'p', type: 'int', description: 'API Port number. (default: 3000)' },
+  { name: 'batch', short: 'b', type: 'boolean', description: 'Run background batch process. (default:false)' }
+]).run()
+
 // init database
 createConnection().then(async (connection) => {
+  // configure
+  const host = args.options.host || process.env.HOST || 'localhost'
+  const port = args.options.port || process.env.PORT || 3000
+  const batch = yn(args.options.batch, { default: yn(process.env.RUN_BATCH, { default: false }) })
+
   const app = new Koa()
 
   // error handlong
@@ -50,12 +63,14 @@ createConnection().then(async (connection) => {
   })
 
   // awake server
-  app.listen(3000)
-  console.log('listen to http://localhost:3000')
+  app.listen(port, host)
+  console.log(`listen to http://${host}:${port}`)
 
-  if (yn(process.env.RUN_BATCH)) {
+  if (batch) {
     // awake batch process
     const cron = new Cron() // eslint-disable-line no-unused-vars
     console.log('run cron batch')
   }
+
+  console.log('wait...')
 }).catch(error => console.log('TypeORM connection error: ', error))

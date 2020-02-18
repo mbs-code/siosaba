@@ -34,7 +34,9 @@
     "typescript": "^3.7.5"
   },
   "dependencies": {
+    "@types/argv": "0.0.4",
     "@types/chunk": "0.0.0",
+    "argv": "0.0.2",
     "chunk": "0.0.2",
     "cli-truncate": "^2.1.0",
     "dayjs": "^1.8.19",
