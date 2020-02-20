@@ -1,10 +1,14 @@
-import { createConnection } from 'typeorm'
+import {
+  createConnection,
+  Connection // eslint-disable-line no-unused-vars
+} from 'typeorm'
 import 'reflect-metadata'
 
 import argv from 'argv'
 import yn from 'yn'
 
 import Koa from 'koa'
+import KoaLogger from 'koa-logger'
 import { userAgent, UserAgentContext } from 'koa-useragent' // eslint-disable-line no-unused-vars
 
 import tableify from 'tableify'
@@ -16,17 +20,26 @@ import Cron from '../src/cron'
 const args = argv.option([
   { name: 'host', short: 'h', type: 'string', description: 'API Host name. (default: localhost)' },
   { name: 'port', short: 'p', type: 'int', description: 'API Port number. (default: 3000)' },
-  { name: 'batch', short: 'b', type: 'boolean', description: 'Run background batch process. (default:false)' }
+  { name: 'batch', short: 'b', type: 'boolean', description: 'Run background batch process. (default:false)' },
+  { name: 'dump', short: 'd', type: 'boolean', description: 'Show dump connection logs' }
 ]).run()
 
+process.env.TYPEORM_LOGGING = 'true'
+
 // init database
-createConnection().then(async (connection) => {
+createConnection().then(async (connection: Connection) => {
   // configure
   const host = args.options.host || process.env.HOST || 'localhost'
   const port = args.options.port || process.env.PORT || 3000
   const batch = yn(args.options.batch, { default: yn(process.env.RUN_BATCH, { default: false }) })
+  const dump = yn(args.options.debug, { default: false })
 
   const app = new Koa()
+
+  // add dump debugger
+  if (dump) {
+    app.use(KoaLogger())
+  }
 
   // error handlong
   app.use(async (ctx, next) => {

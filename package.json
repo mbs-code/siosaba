@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node -r dotenv/config ./server/index.ts",
-    "dev": "ts-node-dev -r dotenv/config --respawn ./server/index.ts",
+    "dev": "ts-node-dev -r dotenv/config --respawn ./server/index.ts --port=3001 --batch=false --dump=true",
     "test": "ts-node -r dotenv/config --transpile-only ./src/test.ts",
     "typeorm": "ts-node -r tsconfig-paths/register -r dotenv/config ./node_modules/typeorm/cli.js",
     "db:sync": "npm run typeorm -- schema:sync",
@@ -36,6 +36,7 @@
   "dependencies": {
     "@types/argv": "0.0.4",
     "@types/chunk": "0.0.0",
+    "@types/koa-logger": "^3.1.1",
     "argv": "0.0.2",
     "chunk": "0.0.2",
     "cli-truncate": "^2.1.0",
@@ -46,6 +47,7 @@
     "googleapis": "^47.0.0",
     "iso8601-duration": "^1.2.0",
     "koa": "^2.11.0",
+    "koa-logger": "^3.2.1",
     "koa-router": "^8.0.6",
     "koa-useragent": "^4.0.0",
     "log4js": "^6.1.1",
