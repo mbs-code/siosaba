@@ -7,8 +7,6 @@ import {
 
 import dayjs from 'dayjs'
 
-import { ExtendEntity } from './../../database/entity/ExtendEntity' // eslint-disable-line no-unused-vars
-
 export default class SearchOptionBuilder<T = any> {
   query: ObjectLiteral
   options: FindManyOptions<T>
