@@ -1,43 +1,41 @@
 import {
-  MoreThanOrEqual,
-  LessThan,
+  SelectQueryBuilder, // eslint-disable-line no-unused-vars
   ObjectLiteral, // eslint-disable-line no-unused-vars
-  FindManyOptions // eslint-disable-line no-unused-vars
+  BaseEntity
 } from 'typeorm'
 
 import dayjs from 'dayjs'
+import { snakeCase } from 'snake-case'
 
-export default class SearchOptionBuilder<T = any> {
+export default class SearchOptionBuilder {
   query: ObjectLiteral
-  options: FindManyOptions<T>
+  qb: SelectQueryBuilder<BaseEntity>
+  alias: string
 
-  static builder<T> (query: ObjectLiteral) {
-    return new this<T>(query)
+  static builder (query: ObjectLiteral, entity: typeof BaseEntity, alias: string) {
+    return new this(query, entity, alias)
   }
 
-  constructor (query: ObjectLiteral) {
+  constructor (query: ObjectLiteral, entity: typeof BaseEntity, alias: string) {
     this.query = query
-    this.options = {
-      order: {},
-      where: {}
-    }
+    this.qb = entity.createQueryBuilder().limit(20) // limit 指定忘れのために初期値を指定
+    this.alias = alias
   }
 
   build () {
-    return this.options
+    return this.qb
   }
 
   /// ////////////////////////////////////////////////////////////
 
   enum (queryKey: string, enumObject: Object, columnName?: string) {
     const value = this.query[queryKey]
-    const column = columnName || queryKey
+    const column = snakeCase(columnName || queryKey)
     if (value) {
       if (!(Object.values(enumObject) as string[]).includes(value)) {
         throw new Error(`"${queryKey}" is not valid. { input: "${value}", allow: ${JSON.stringify(Object.values(enumObject))} }`)
       }
-
-      this.options.where[column] = value
+      this.qb.andWhere(`${this.alias}.${column} = :${column}`, { [column]: value })
     }
     return this
   }
@@ -49,15 +47,15 @@ export default class SearchOptionBuilder<T = any> {
    * ---------------○-----
    *             queryKey
    */
-  untilDatetime (queryKey: string, columnName?: string) {
+  untilDatetime (queryKey: string, endColumnName?: string) {
     const value = this.query[queryKey]
-    const column = columnName || queryKey
+    const column = snakeCase(endColumnName || queryKey)
     if (value) {
       const end = dayjs(value)
       if (!end.isValid()) {
         throw new Error(`"${queryKey}" is not valid. { input :"${value}", allow: "iso8601 datetime format" }`)
       }
-      this.options.where[column] = LessThan(end.toDate()) // <
+      this.qb.andWhere(`${this.alias}.${column} < :${column}`, { [column]: value })
     }
     return this
   }
@@ -71,37 +69,36 @@ export default class SearchOptionBuilder<T = any> {
    */
   sinceDatetime (queryKey: string, startColumnName?: string) {
     const value = this.query[queryKey]
-    const column = startColumnName || queryKey
+    const column = snakeCase(startColumnName || queryKey)
     if (value) {
       const start = dayjs(value)
       if (!start.isValid()) {
         throw new Error(`"${queryKey}" is not valid. { input :"${value}", allow: "iso8601 datetime format" }`)
       }
-      this.options.where[column] = MoreThanOrEqual(start.toDate()) // >=
+      this.qb.andWhere(`${this.alias}.${column} >= :${column}`, { [column]: value })
     }
     return this
   }
 
-  pagination () {
-    const page: number = this.query.page || 1
-    const size: number = this.query.size || 20
-    const sort: string = this.query.sort
-    const order: 'ASC'|'DESC'|'-1'|'1' = this.query.order || 'ASC'
+  pagination ({ pageQueryKey = 'page', sizeQueryKey = 'size', sortQueryKey = 'sort', orderQueryKey = 'order' }
+    : { pageQueryKey?: string, sizeQueryKey?: string, sortQueryKey?: string, orderQueryKey?: string } = {}) {
+    const page: number = this.query[pageQueryKey] || 1
+    const size: number = this.query[sizeQueryKey] || 20
+    const sort: string = this.query[sortQueryKey]
+    const order: string = this.query[orderQueryKey] || 'ASC'
 
     const cPage = this.range(page, { min: 1 })
     const cSize = this.range(size, { max: 100 })
 
-    this.options.take = cSize
-    this.options.skip = (cPage - 1) * cSize
+    this.qb.take(cSize)
+    this.qb.skip((cPage - 1) * cSize)
 
     if (sort) {
-      this.options.order[sort] = this.formatOrder(order)
+      const fSort = snakeCase(sort)
+      const fOrder: 'ASC'|'DESC' = this.formatOrder(order)
+      this.qb.orderBy(`${this.alias}.${fSort}`, fOrder)
     }
-    return this
-  }
 
-  raw (callback: (options: FindManyOptions<T>) => FindManyOptions<T>) {
-    this.options = callback(this.options)
     return this
   }
 
@@ -118,13 +115,22 @@ export default class SearchOptionBuilder<T = any> {
     return num
   }
 
-  private formatOrder (val: string) {
+  private formatOrder (val: string): 'ASC'|'DESC' {
     if (val) {
       if (!isNaN(Number(val))) { // 数字以外は true
-        return parseInt(val)
+        if (parseInt(val) >= 0) {
+          return 'ASC'
+        } else {
+          return 'DESC'
+        }
       }
-      return val.toUpperCase()
+
+      const upper = val.toUpperCase()
+      if (upper === 'ASC' || upper === 'DESC') {
+        return upper
+      }
     }
-    return val
+
+    return 'ASC' // default
   }
 }

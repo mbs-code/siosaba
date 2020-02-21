@@ -1,5 +1,5 @@
 import Router from 'koa-router'
-import SearchOptionBuilder from '../lib/SearchOptionBuilder'
+import SearchQueryBuilder from '../lib/SearchQueryBuilder'
 
 import { Video } from '../../database/entity/Video'
 import { VideoStat } from './../../database/entity/VideoStat'
@@ -9,7 +9,7 @@ import { VideoType } from './../../database/entity/type/VideoType'
 
 const router = new Router()
 router.get('/', async (ctx, next) => {
-  const options = SearchOptionBuilder.builder<Video>(ctx.query)
+  const qb = SearchQueryBuilder.builder(ctx.query, Video, 'video')
     .enum('type', VideoType)
     .enum('status', VideoStatus)
     .untilDatetime('end', 'startTime')
@@ -17,7 +17,7 @@ router.get('/', async (ctx, next) => {
     .pagination()
     .build()
 
-  const videos = await Video.find(options)
+  const videos = await qb.getMany()
   ctx.body = videos
 })
 

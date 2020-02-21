@@ -1,6 +1,6 @@
 
 import Router from 'koa-router'
-import SearchOptionBuilder from '../lib/SearchOptionBuilder'
+import SearchQueryBuilder from '../lib/SearchQueryBuilder'
 
 import { Channel } from '../../database/entity/Channel'
 import { ChannelStat } from './../../database/entity/ChannelStat'
@@ -8,10 +8,11 @@ import { ChannelMeta } from './../../database/entity/ChannelMeta'
 
 const router = new Router()
 router.get('/', async (ctx, next) => {
-  const options = SearchOptionBuilder.builder<Channel>(ctx.query)
+  const qb = SearchQueryBuilder.builder(ctx.query, Channel, 'channel')
     .pagination()
     .build()
-  const channels = await Channel.find(options)
+
+  const channels = await qb.getMany()
   ctx.body = channels
 })
 

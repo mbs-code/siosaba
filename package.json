@@ -57,6 +57,7 @@
     "printf": "^0.5.2",
     "reflect-metadata": "^0.1.13",
     "rss-parser": "^3.7.5",
+    "snake-case": "^3.0.3",
     "tableify": "^1.1.0",
     "tsconfig-paths": "^3.9.0",
     "typeorm": "^0.2.22",
