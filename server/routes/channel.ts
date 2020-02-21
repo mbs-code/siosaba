@@ -9,6 +9,7 @@ import { ChannelMeta } from './../../database/entity/ChannelMeta'
 const router = new Router()
 router.get('/', async (ctx, next) => {
   const qb = SearchQueryBuilder.builder(ctx.query, Channel, 'channel')
+    .search('text', ['key', 'title', 'description'])
     .pagination()
     .build()
 

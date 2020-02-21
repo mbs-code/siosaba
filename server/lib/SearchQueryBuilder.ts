@@ -1,7 +1,8 @@
 import {
   SelectQueryBuilder, // eslint-disable-line no-unused-vars
   ObjectLiteral, // eslint-disable-line no-unused-vars
-  BaseEntity
+  BaseEntity,
+  Brackets
 } from 'typeorm'
 
 import dayjs from 'dayjs'
@@ -27,6 +28,20 @@ export default class SearchOptionBuilder {
   }
 
   /// ////////////////////////////////////////////////////////////
+
+  search (queryKey: string, columnNames: string[]) {
+    const value = this.query[queryKey]
+    const columns = columnNames
+    if (value) {
+      this.qb.andWhere(new Brackets(qb => {
+        for (const column of columns) {
+          const fCol = snakeCase(column)
+          qb.orWhere(`${this.alias}.${fCol} LIKE :${fCol}`, { [fCol]: `%${value}%` })
+        }
+      }))
+    }
+    return this
+  }
 
   enum (queryKey: string, enumObject: Object, columnName?: string) {
     const value = this.query[queryKey]
