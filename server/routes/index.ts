@@ -4,7 +4,7 @@ import channel from './channel'
 import video from './video'
 
 const router = new Router()
-router.use(channel.prefix('/channel').routes())
-router.use(video.prefix('/video').routes())
+router.use(channel.prefix('/channels').routes())
+router.use(video.prefix('/videos').routes())
 
 export default router
