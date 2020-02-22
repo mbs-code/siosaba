@@ -10,7 +10,6 @@ import yn from 'yn'
 import Koa from 'koa'
 import cors from '@koa/cors'
 import KoaLogger from 'koa-logger'
-import { userAgent, UserAgentContext } from 'koa-useragent' // eslint-disable-line no-unused-vars
 
 import tableify from 'tableify'
 
@@ -55,10 +54,9 @@ createConnection().then(async (connection: Connection) => {
   })
 
   // visualize APi table
-  app.use(userAgent)
-  app.use<Koa.BaseContext, UserAgentContext>(async (ctx, next) => {
+  app.use(async (ctx, next) => {
     await next()
-    if (ctx.userAgent.isDesktop) {
+    if (yn(ctx.query.table)) {
       ctx.type = 'text/html'
       ctx.body = tableify(ctx.body)
       // 簡易CSS
