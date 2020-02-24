@@ -13,18 +13,27 @@ export default class SearchOptionBuilder {
   qb: SelectQueryBuilder<BaseEntity>
   alias: string
 
+  page: number
+  take: number
+
   static builder (query: ObjectLiteral, entity: typeof BaseEntity, alias: string) {
     return new this(query, entity, alias)
   }
 
   constructor (query: ObjectLiteral, entity: typeof BaseEntity, alias: string) {
     this.query = query
-    this.qb = entity.createQueryBuilder().limit(20) // limit 指定忘れのために初期値を指定
     this.alias = alias
+    this.page = 1
+    this.take = 20
+    this.qb = entity.createQueryBuilder().take(this.limit) // take 指定忘れのために初期値を指定
   }
 
   build () {
-    return this.qb
+    return {
+      query: this.qb,
+      page: this.page,
+      size: this.take
+    }
   }
 
   /// ////////////////////////////////////////////////////////////
@@ -105,6 +114,10 @@ export default class SearchOptionBuilder {
     const cPage = this.range(page, { min: 1 })
     const cSize = this.range(size, { max: 100 })
 
+    console.log('cPage: ' + cPage)
+    console.log('cSize: ' + cSize)
+    console.log('skip: ' + (cPage - 1) * cSize)
+
     this.qb.take(cSize)
     this.qb.skip((cPage - 1) * cSize)
 
@@ -113,6 +126,9 @@ export default class SearchOptionBuilder {
       const fOrder: 'ASC'|'DESC' = this.formatOrder(order)
       this.qb.orderBy(`${this.alias}.${fSort}`, fOrder)
     }
+
+    this.take = cSize
+    this.page = page
 
     return this
   }

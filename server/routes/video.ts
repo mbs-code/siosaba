@@ -9,7 +9,7 @@ import { VideoType } from './../../database/entity/type/VideoType'
 
 const router = new Router()
 router.get('/', async (ctx, next) => {
-  const qb = SearchQueryBuilder.builder(ctx.query, Video, 'video')
+  const { query, page, size } = SearchQueryBuilder.builder(ctx.query, Video, 'video')
     .search('text', ['key', 'title', 'description'])
     .enum('type', VideoType)
     .enum('status', VideoStatus)
@@ -18,8 +18,14 @@ router.get('/', async (ctx, next) => {
     .pagination()
     .build()
 
-  const videos = await qb.getMany()
-  ctx.body = videos
+  const { 0: items, 1: count } = await query.getManyAndCount()
+  ctx.body = {
+    items: items,
+    length: size,
+    totalLength: count,
+    page: page,
+    totalPages: Math.ceil(count / size)
+  }
 })
 
 router.get('/:id', async (ctx, next) => {

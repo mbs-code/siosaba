@@ -8,13 +8,19 @@ import { ChannelMeta } from './../../database/entity/ChannelMeta'
 
 const router = new Router()
 router.get('/', async (ctx, next) => {
-  const qb = SearchQueryBuilder.builder(ctx.query, Channel, 'channel')
+  const { query, page, size } = SearchQueryBuilder.builder(ctx.query, Channel, 'channel')
     .search('text', ['key', 'title', 'description'])
     .pagination()
     .build()
 
-  const channels = await qb.getMany()
-  ctx.body = channels
+  const { 0: items, 1: count } = await query.getManyAndCount()
+  ctx.body = {
+    items: items,
+    length: size,
+    totalLength: count,
+    page: page,
+    totalPages: Math.ceil(count / size)
+  }
 })
 
 router.get('/:id', async (ctx, next) => {
