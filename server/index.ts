@@ -58,8 +58,8 @@ createConnection().then(async (connection: Connection) => {
     await next()
     if (yn(ctx.query.table)) {
       ctx.type = 'text/html'
-      ctx.body = tableify(ctx.body)
-      // 簡易CSS
+      ctx.body = tableify(ctx.body.items || ctx.body) // items ???
+      // ??css
       ctx.body += '<style>'
       ctx.body += 'table{border-collapse: collapse;}'
       ctx.body += 'td{white-space:nowrap; overflow:hidden; text-overflow: ellipsis; min-width: 40px; max-width:400px; border: solid 1px gray;}'
