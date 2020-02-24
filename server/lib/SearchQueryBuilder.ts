@@ -7,6 +7,7 @@ import {
 
 import dayjs from 'dayjs'
 import { snakeCase } from 'snake-case'
+import normalizeArray from './normalizeArray'
 
 export default class SearchOptionBuilder {
   query: ObjectLiteral
@@ -53,13 +54,16 @@ export default class SearchOptionBuilder {
   }
 
   enum (queryKey: string, enumObject: Object, columnName?: string) {
-    const value = this.query[queryKey]
     const column = snakeCase(columnName || queryKey)
-    if (value) {
-      if (!(Object.values(enumObject) as string[]).includes(value)) {
-        throw new Error(`"${queryKey}" is not valid. { input: "${value}", allow: ${JSON.stringify(Object.values(enumObject))} }`)
+    const values = normalizeArray(this.query[queryKey + '[]'] || this.query[queryKey])
+
+    if (values) {
+      for (const value of values) {
+        if (!(Object.values(enumObject) as string[]).includes(value)) {
+          throw new Error(`"${queryKey}" is not valid. { input: "${value}", allow: ${JSON.stringify(Object.values(enumObject))} }`)
+        }
       }
-      this.qb.andWhere(`${this.alias}.${column} = :${column}`, { [column]: value })
+      this.qb.andWhere(`${this.alias}.${column}  IN (:${column})`, { [column]: values })
     }
     return this
   }
@@ -113,10 +117,6 @@ export default class SearchOptionBuilder {
 
     const cPage = this.range(page, { min: 1 })
     const cSize = this.range(size, { max: 100 })
-
-    console.log('cPage: ' + cPage)
-    console.log('cSize: ' + cSize)
-    console.log('skip: ' + (cPage - 1) * cSize)
 
     this.qb.take(cSize)
     this.qb.skip((cPage - 1) * cSize)

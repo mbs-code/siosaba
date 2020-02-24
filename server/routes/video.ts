@@ -10,7 +10,7 @@ import { VideoType } from './../../database/entity/type/VideoType'
 const router = new Router()
 router.get('/', async (ctx, next) => {
   const { query, page, size } = SearchQueryBuilder.builder(ctx.query, Video, 'video')
-    .search('text', ['key', 'title', 'description'])
+    .search('text', ['key', 'title'])
     .enum('type', VideoType)
     .enum('status', VideoStatus)
     .untilDatetime('end', 'startTime')
