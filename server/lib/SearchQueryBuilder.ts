@@ -26,7 +26,7 @@ export default class SearchOptionBuilder {
     this.alias = alias
     this.page = 1
     this.take = 20
-    this.qb = entity.createQueryBuilder().take(this.limit) // take 指定忘れのために初期値を指定
+    this.qb = entity.createQueryBuilder().take(this.take) // take 指定忘れのために初期値を指定
   }
 
   build () {
