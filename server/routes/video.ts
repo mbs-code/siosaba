@@ -16,6 +16,7 @@ router.get('/', async (ctx, next) => {
     .untilDatetime('end', 'startTime')
     .sinceDatetime('start', 'endTime')
     .pagination()
+    .leftJoinAndSelect('video.channel', 'channel')
     .build()
 
   const { 0: items, 1: count } = await query.getManyAndCount()
@@ -29,8 +30,13 @@ router.get('/', async (ctx, next) => {
 })
 
 router.get('/:id', async (ctx, next) => {
-  const video = await Video.findOneOrFail({ id: ctx.params.id })
-  ctx.body = video
+  const { query } = SearchQueryBuilder.builder(ctx.query, Video, 'video')
+    .equal('id', ctx.params.id)
+    .leftJoinAndSelect('video.channel', 'channel')
+    .build()
+
+  const item = await query.getOne()
+  ctx.body = item
 })
 
 router.get('/:id/metas', async (ctx, next) => {

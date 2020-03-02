@@ -6,7 +6,7 @@ import {
 } from 'typeorm'
 
 import dayjs from 'dayjs'
-import { snakeCase } from 'snake-case'
+import { camelCase } from 'camel-case'
 import normalizeArray from './normalizeArray'
 
 export default class SearchOptionBuilder {
@@ -26,7 +26,7 @@ export default class SearchOptionBuilder {
     this.alias = alias
     this.page = 1
     this.take = 20
-    this.qb = entity.createQueryBuilder().take(this.take) // take 指定忘れのために初期値を指定
+    this.qb = entity.createQueryBuilder(alias).take(this.take) // take 指定忘れのために初期値を指定
   }
 
   build () {
@@ -37,6 +37,14 @@ export default class SearchOptionBuilder {
     }
   }
 
+  equal (columnName: string, value: string) {
+    const column = camelCase(columnName)
+    if (value) {
+      this.qb.andWhere(`${this.alias}.${column} = :${column}`, { [column]: value })
+    }
+    return this
+  }
+
   /// ////////////////////////////////////////////////////////////
 
   search (queryKey: string, columnNames: string[]) {
@@ -45,7 +53,7 @@ export default class SearchOptionBuilder {
     if (value) {
       this.qb.andWhere(new Brackets(qb => {
         for (const column of columns) {
-          const fCol = snakeCase(column)
+          const fCol = camelCase(column)
           qb.orWhere(`${this.alias}.${fCol} LIKE :${fCol}`, { [fCol]: `%${value}%` })
         }
       }))
@@ -54,7 +62,7 @@ export default class SearchOptionBuilder {
   }
 
   enum (queryKey: string, enumObject: Object, columnName?: string) {
-    const column = snakeCase(columnName || queryKey)
+    const column = camelCase(columnName || queryKey)
     const values = normalizeArray(this.query[queryKey + '[]'] || this.query[queryKey])
 
     if (values) {
@@ -77,7 +85,7 @@ export default class SearchOptionBuilder {
    */
   untilDatetime (queryKey: string, endColumnName?: string) {
     const value = this.query[queryKey]
-    const column = snakeCase(endColumnName || queryKey)
+    const column = camelCase(endColumnName || queryKey)
     if (value) {
       const end = dayjs(value)
       if (!end.isValid()) {
@@ -97,7 +105,7 @@ export default class SearchOptionBuilder {
    */
   sinceDatetime (queryKey: string, startColumnName?: string) {
     const value = this.query[queryKey]
-    const column = snakeCase(startColumnName || queryKey)
+    const column = camelCase(startColumnName || queryKey)
     if (value) {
       const start = dayjs(value)
       if (!start.isValid()) {
@@ -122,7 +130,7 @@ export default class SearchOptionBuilder {
     this.qb.skip((cPage - 1) * cSize)
 
     if (sort) {
-      const fSort = snakeCase(sort)
+      const fSort = camelCase(sort)
       const fOrder: 'ASC'|'DESC' = this.formatOrder(order)
       this.qb.orderBy(`${this.alias}.${fSort}`, fOrder)
     }
@@ -130,6 +138,11 @@ export default class SearchOptionBuilder {
     this.take = cSize
     this.page = page
 
+    return this
+  }
+
+  leftJoinAndSelect (property: string, alias: string) {
+    this.qb.leftJoinAndSelect(property, alias)
     return this
   }
 
