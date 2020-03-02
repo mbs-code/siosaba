@@ -69,10 +69,10 @@ createConnection().then(async (connection: Connection) => {
   })
 
   // routing
-  app.use(router.routes())
+  app.use(router.prefix('/api').routes())
   app.use(router.allowedMethods())
   app.use(async (ctx, next) => {
-    ctx.body = 'no route!'
+    ctx.body = 'no route!\n' + ctx.url
   })
 
   // awake server
