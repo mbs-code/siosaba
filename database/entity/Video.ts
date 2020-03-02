@@ -79,6 +79,9 @@ export class Video extends ExtendEntity {
   @Column({ type: 'datetime', precision: 3, nullable: true, name: 'published_at' })
   publishedAt: Date
 
+  @Column({ type: 'int', unsigned: true, nullable: true, name: 'max_viewers' })
+  maxViewers: number // DB 抽出用
+
   ///
   // VideoStat
 

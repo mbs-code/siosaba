@@ -63,6 +63,9 @@ export default class VideoInserter extends Inserter<Video> {
     v.startTime = stEdTime.start
     v.endTime = stEdTime.end
 
+    // 最大同接の計算
+    v.maxViewers = Math.max(v.maxViewers || 0, v.concurrentViewers || 0)
+
     // channel との関連付け
     const channelKey: string = get(item, 'snippet.channelId')
     const channel = await Channel.findOne({ key: channelKey })
