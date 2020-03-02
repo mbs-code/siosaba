@@ -11,18 +11,29 @@ import ChannelFeedCollector from './collector/ChannelFeedCollector'
 import ChannelInserter from './inserter/ChannelInserter'
 import VideoInserter from './inserter/VideoInserter'
 import Command from './command'
+import LiveVideoCollector from './collector/LiveVideoCollector'
 
 (async () => {
   console.log('start')
   const conn = await createConnection()
 
-  // const youtube = google.youtube({
-  //   version: 'v3',
-  //   auth: process.env.GOOGLE_API_KEY
-  // })
+  const youtube = google.youtube({
+    version: 'v3',
+    auth: process.env.GOOGLE_API_KEY
+  })
+
+  const cids = ['UCIRI90jWpTW1exSdW7NicEg']
+  const ci = new ChannelInserter(youtube)
+  await ci.exec({ ids: cids })
+
+  const cfc = new ChannelFeedCollector({ strict: false })
+  const feedIds = await cfc.exec(cids)
+
+  const vi = new VideoInserter(youtube)
+  await vi.exec({ ids: feedIds })
 
   const cron = new Command()
-  await cron.exec(new Date('2020-02-15 19:00:00'))
+  await cron.exec(new Date('2020-02-15 19:05:00'))
 
   // ■ live video collect -> video insert
   // const lvc = new LiveVideoCollector()
