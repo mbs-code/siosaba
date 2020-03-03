@@ -11,6 +11,7 @@ const router = new Router()
 router.get('/', async (ctx, next) => {
   const { query, page, size } = SearchQueryBuilder.builder(ctx.query, Video, 'video')
     .search('text', ['key', 'title'])
+    .equal('channel', 'channelId')
     .enum('type', VideoType)
     .enum('status', VideoStatus)
     .untilDatetime('end', 'startTime')
@@ -31,7 +32,7 @@ router.get('/', async (ctx, next) => {
 
 router.get('/:id', async (ctx, next) => {
   const { query } = SearchQueryBuilder.builder(ctx.query, Video, 'video')
-    .equal('id', ctx.params.id)
+    .equalRaw('id', ctx.params.id)
     .leftJoinAndSelect('video.channel', 'channel')
     .build()
 

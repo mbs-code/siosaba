@@ -37,12 +37,17 @@ export default class SearchOptionBuilder {
     }
   }
 
-  equal (columnName: string, value: string) {
+  equalRaw (columnName: string, value: string) {
     const column = camelCase(columnName)
     if (value) {
       this.qb.andWhere(`${this.alias}.${column} = :${column}`, { [column]: value })
     }
     return this
+  }
+
+  equal (queryKey: string, columnName?: string) {
+    const value = this.query[queryKey]
+    return this.equalRaw(columnName || queryKey, value)
   }
 
   /// ////////////////////////////////////////////////////////////
