@@ -1,5 +1,7 @@
 import Router from 'koa-router'
 import SearchQueryBuilder from '../lib/SearchQueryBuilder'
+import { MoreThan } from 'typeorm'
+import dayjs from 'dayjs'
 
 import { Video } from '../../database/entity/Video'
 import { VideoStat } from './../../database/entity/VideoStat'
@@ -41,12 +43,20 @@ router.get('/:id', async (ctx, next) => {
 })
 
 router.get('/:id/metas', async (ctx, next) => {
-  const metas = await VideoMeta.find({ videoId: ctx.params.id })
+  const start = dayjs().subtract(7, 'day').toDate()
+  const metas = await VideoMeta.find({
+    videoId: ctx.params.id,
+    createdAt: MoreThan(start)
+  })
   ctx.body = metas
 })
 
 router.get('/:id/stats', async (ctx, next) => {
-  const stats = await VideoStat.find({ videoId: ctx.params.id })
+  const start = dayjs().subtract(7, 'day').toDate()
+  const stats = await VideoStat.find({
+    videoId: ctx.params.id,
+    createdAt: MoreThan(start)
+  })
   ctx.body = stats
 })
 

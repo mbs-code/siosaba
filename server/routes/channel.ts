@@ -1,6 +1,8 @@
 
 import Router from 'koa-router'
 import SearchQueryBuilder from '../lib/SearchQueryBuilder'
+import { MoreThan } from 'typeorm'
+import dayjs from 'dayjs'
 
 import { Channel } from '../../database/entity/Channel'
 import { ChannelStat } from './../../database/entity/ChannelStat'
@@ -29,12 +31,20 @@ router.get('/:id', async (ctx, next) => {
 })
 
 router.get('/:id/metas', async (ctx, next) => {
-  const metas = await ChannelMeta.find({ channelId: ctx.params.id })
+  const start = dayjs().subtract(7, 'day').format('YYYY-MM-DD HH:mm:ss')
+  const metas = await ChannelMeta.find({
+    channelId: ctx.params.id,
+    createdAt: MoreThan(start)
+  })
   ctx.body = metas
 })
 
 router.get('/:id/stats', async (ctx, next) => {
-  const stats = await ChannelStat.find({ channelId: ctx.params.id })
+  const start = dayjs().subtract(7, 'day').format('YYYY-MM-DD HH:mm:ss')
+  const stats = await ChannelStat.find({
+    channelId: ctx.params.id,
+    createdAt: MoreThan(start)
+  })
   ctx.body = stats
 })
 
