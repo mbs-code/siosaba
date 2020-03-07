@@ -3,6 +3,7 @@ import Router from 'koa-router'
 import SearchQueryBuilder from '../lib/SearchQueryBuilder'
 import { MoreThan } from 'typeorm'
 import dayjs from 'dayjs'
+import yn from 'yn'
 
 import { Channel } from '../../database/entity/Channel'
 import { ChannelStat } from './../../database/entity/ChannelStat'
@@ -10,8 +11,12 @@ import { ChannelMeta } from './../../database/entity/ChannelMeta'
 
 const router = new Router()
 router.get('/', async (ctx, next) => {
+  const fulltext = yn(ctx.query.fulltext)
+  const searchColumn = ['key', 'title', 'channel.title']
+  if (fulltext) searchColumn.push('description')
+
   const { query, page, size } = SearchQueryBuilder.builder(ctx.query, Channel, 'channel')
-    .search('text', ['key', 'title', 'description'])
+    .search('text', searchColumn)
     .pagination()
     .build()
 

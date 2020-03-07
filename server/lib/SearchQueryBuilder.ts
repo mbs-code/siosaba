@@ -58,8 +58,11 @@ export default class SearchOptionBuilder {
     if (value) {
       this.qb.andWhere(new Brackets(qb => {
         for (const column of columns) {
-          const fCol = camelCase(column)
-          qb.orWhere(`${this.alias}.${fCol} LIKE :${fCol}`, { [fCol]: `%${value}%` })
+          // . があったらそのまま、無かったら alias をくっつける
+          const fCol = column.indexOf('.') >= 0
+            ? column
+            : `${this.alias}.${camelCase(column)}`
+          qb.orWhere(`${fCol} LIKE :${fCol}`, { [fCol]: `%${value}%` })
         }
       }))
     }

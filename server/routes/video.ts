@@ -2,6 +2,7 @@ import Router from 'koa-router'
 import SearchQueryBuilder from '../lib/SearchQueryBuilder'
 import { MoreThan } from 'typeorm'
 import dayjs from 'dayjs'
+import yn from 'yn'
 
 import { Video } from '../../database/entity/Video'
 import { VideoStat } from './../../database/entity/VideoStat'
@@ -11,8 +12,12 @@ import { VideoType } from './../../database/entity/type/VideoType'
 
 const router = new Router()
 router.get('/', async (ctx, next) => {
+  const fulltext = yn(ctx.query.fulltext)
+  const searchColumn = ['key', 'title', 'channel.title']
+  if (fulltext) searchColumn.push('description')
+
   const { query, page, size } = SearchQueryBuilder.builder(ctx.query, Video, 'video')
-    .search('text', ['key', 'title'])
+    .search('text', searchColumn)
     .equal('channel', 'channelId')
     .enum('type', VideoType)
     .enum('status', VideoStatus)
