@@ -123,7 +123,7 @@ export default class VideoInserter extends Inserter<Video> {
     } else if (video.type === VideoType.VIDEO) {
       // 動画なら 投稿時間 => +duration
       const duration = video.duration
-      const end = dayjs(video.publishedAt).add(duration, 'minute').toDate()
+      const end = dayjs(video.publishedAt).add(duration, 'second').toDate()
       return {
         start: video.publishedAt,
         end: end
