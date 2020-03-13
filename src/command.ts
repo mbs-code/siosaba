@@ -77,6 +77,7 @@ export default class Command {
   }
 
   async fetchFeedVideos () {
+    // feed から video を収集する
     Logger.info('RUN - Fetch Feed Videos. -------------------------')
     const cids = await ChannelQueryBuilder.builder().exec()
 
@@ -146,6 +147,12 @@ export default class Command {
 
         // 前NHourの upcoming video を更新する
         await this.updateSoonUpcomingVideos(day, 1)
+      }
+
+      // ■ 15分おきに (5, 20, 35, 50)
+      if ((minute - 5) % 15 === 0) {
+        // feed から video を収集する
+        await this.fetchFeedVideos()
       }
     } catch (err) {
       Logger.error(err)
