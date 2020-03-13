@@ -1,16 +1,16 @@
+import { filterSeries } from 'p-iteration'
+import { flatten } from 'array-flatten'
 import { google, youtube_v3 as youtubeV3 } from 'googleapis' // eslint-disable-line no-unused-vars
 
 import dayjs from 'dayjs'
 import { cron as Logger, EOL } from './lib/logger'
 
-import ChannelCollector from './collector/ChannelCollector'
-import VideoCollector from './collector/VideoCollector'
-
+import ChannelQueryBuilder from './collector/builder/channelQueryBuilder'
+import VideoQueryBuider from './collector/builder/VideoQueryBuider'
 import ChannelInserter from './inserter/ChannelInserter'
-import ChannelFeedCollector from './collector/ChannelFeedCollector'
 import VideoInserter from './inserter/VideoInserter'
-import LiveVideoCollector from './collector/LiveVideoCollector'
-import UpcomingVideoCollector from './collector/UpcomingVideoCollector'
+import { VideoType } from '../database/entity/type/VideoType'
+import ChannelFeedCollector from './collector/ChannelFeedCollector'
 
 export default class Command {
   youtube: youtubeV3.Youtube
@@ -24,62 +24,61 @@ export default class Command {
 
   /// ////////////////////////////////////////////////////////////
 
-  async updateChannels (channelIds?: string[]) {
-    Logger.info('RUN - Update channels. ---------------------------')
-    let cids = channelIds
-    // 引数が undefined なら全件取得する
-    if (!cids) {
-      const cc = new ChannelCollector()
-      cids = await cc.exec(channelIds)
-    }
-
+  async updateChannels () {
+    // channel を全て更新する
+    Logger.info('RUN - Update All Channels. -----------------------')
+    const cids = await ChannelQueryBuilder.builder().exec()
     await this.insertChannels(cids)
   }
 
-  async updateVideos (videoIds?: string[]) {
-    Logger.info('RUN - Update videos. -----------------------------')
-    let vids = videoIds
-    // 引数が undefined なら全件取得する
-    if (!vids) {
-      const cc = new VideoCollector()
-      vids = await cc.exec(videoIds)
-    }
+  async updatePreviousWeekVideos (date: dayjs.Dayjs) {
+    // 一週間分の過去の video と archive を更新する
+    Logger.info('RUN - Update Previous Week Videos. ---------------')
+    const vids = await VideoQueryBuider.builder()
+      .type(VideoType.VIDEO, VideoType.ARCHIVE)
+      .timeRange(-60 * 24 * 7, 0, date)
+      .exec()
+    await this.insertVideos(vids)
+  }
 
+  async updateActiveVideos (date: dayjs.Dayjs) {
+    // live と 前1Hourの video を更新する
+    Logger.info('RUN - Update Active Videos. ----------------------')
+    const lives = await VideoQueryBuider.builder()
+      .type(VideoType.LIVE)
+      .exec()
+
+    const videos = await VideoQueryBuider.builder()
+      .type(VideoType.VIDEO)
+      .timeRange(-60, 0, date)
+      .exec()
+
+    const vids = await this.merge(lives, videos)
     await this.insertVideos(vids)
   }
 
   async updateUpcomingVideos () {
-    Logger.info('RUN - Update upcoming videos. --------------------')
-    const uvc = new UpcomingVideoCollector()
-    const liveVids = await uvc.exec()
-
-    await this.insertVideos(liveVids)
+    Logger.info('RUN - Update Upcoming Videos. --------------------')
+    // 全ての upcoming video を更新する
+    const vids = await VideoQueryBuider.builder()
+      .type(VideoType.UPCOMING)
+      .exec()
+    await this.insertVideos(vids)
   }
 
-  async updateSoonUpcomingVideos (date: Date|dayjs.Dayjs) {
-    Logger.info('RUN - Update soon upcoming videos. ---------------')
-    const suvc = new UpcomingVideoCollector(date, 60)
-    const liveVids = await suvc.exec()
-
-    await this.insertVideos(liveVids)
+  async updateSoonUpcomingVideos (date: dayjs.Dayjs, hour: number = 1) {
+    Logger.info('RUN - Update Soon Upcoming Videos. ---------------')
+    // 前NHourの upcoming video を更新する
+    const vids = await VideoQueryBuider.builder()
+      .type(VideoType.UPCOMING)
+      .timeRange(-60 * hour, 0, date)
+      .exec()
+    await this.insertVideos(vids)
   }
 
-  async updateLiveVideos () {
-    Logger.info('RUN - Update live videos. ------------------------')
-    const lvc = new LiveVideoCollector()
-    const liveVids = await lvc.exec()
-
-    await this.insertVideos(liveVids)
-  }
-
-  async updateFeedVideos (channelIds?: string[]) {
-    Logger.info('RUN - Collect feed videos. -----------------------')
-    let cids = channelIds
-    // 引数が undefined なら全件取得する
-    if (!cids) {
-      const cc = new ChannelCollector()
-      cids = await cc.exec(channelIds)
-    }
+  async fetchFeedVideos () {
+    Logger.info('RUN - Fetch Feed Videos. -------------------------')
+    const cids = await ChannelQueryBuilder.builder().exec()
 
     const cfc = new ChannelFeedCollector({ strict: false })
     const feedVids = await cfc.exec(cids)
@@ -88,6 +87,18 @@ export default class Command {
   }
 
   /// ////////////////////////////////////////////////////////////
+
+  async merge (...array: any[][]) {
+    // 結合
+    const items = flatten(array)
+
+    // フィルタリング (重複、空要素を削除)
+    const filterItems = await filterSeries(items, async (val, index, array) => {
+      return val && array.indexOf(val) === index
+    })
+
+    return filterItems
+  }
 
   private async insertChannels (channelds: string[]) {
     const ci = new ChannelInserter(this.youtube)
@@ -113,28 +124,28 @@ export default class Command {
       Logger.info('- date: %s', day.format('YYYY-MM-DD HH:mm:ss.sss'))
       Logger.info('------------------------------------------------------------')
 
-      // 一時間おきに
-      if (minute === 0) {
-        // channel を更新する
+      // ■ 12時間おきに (0:00, 12:00)
+      if (hour % 12 === 0 && minute === 0) {
+        // channel を全て更新する
         await this.updateChannels()
 
-        // upcoming video を更新する
+        // 一週間分の過去の video と archive を更新する
+        await this.updatePreviousWeekVideos(day)
+      }
+
+      // ■ 1時間おきに
+      if (minute === 0) {
+        // 全ての upcoming video を更新する
         await this.updateUpcomingVideos()
       }
 
-      // 5分おきに
+      // ■ 5分おきに (0, 5, 10, 15 ...)
       if (minute % 5 === 0) {
-        // 配信中の video を更新する
-        await this.updateLiveVideos()
+        // live と 前1Hの video を更新する
+        await this.updateActiveVideos(day)
 
-        // 直近の upcoming video を更新する
-        await this.updateSoonUpcomingVideos(day)
-      }
-
-      // 15分おきに (5, 20, 35, 50)
-      if ((minute - 5) % 15 === 0) {
-        // feed から video を収集する
-        await this.updateFeedVideos()
+        // 前NHourの upcoming video を更新する
+        await this.updateSoonUpcomingVideos(day, 1)
       }
     } catch (err) {
       Logger.error(err)

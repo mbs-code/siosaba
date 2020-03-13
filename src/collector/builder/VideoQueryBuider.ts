@@ -1,4 +1,3 @@
-
 import dayjs from 'dayjs' // eslint-disable-line no-unused-vars
 
 import { VideoType } from './../../../database/entity/type/VideoType' // eslint-disable-line no-unused-vars
@@ -6,7 +5,8 @@ import VideoCollector from '../VideoCollector'
 
 export default class VideoQueryBuilder {
   private types: VideoType[]
-  private moveMinute: number
+  private beforeMinute: number
+  private afterMinute: number
   private baseDate?: Date|dayjs.Dayjs
   private excludeDelete: boolean
 
@@ -17,7 +17,8 @@ export default class VideoQueryBuilder {
   async exec () {
     const vc = new VideoCollector(
       this.types,
-      this.moveMinute,
+      this.beforeMinute,
+      this.afterMinute,
       this.baseDate,
       this.excludeDelete
     )
@@ -30,7 +31,8 @@ export default class VideoQueryBuilder {
 
   constructor () {
     this.types = []
-    this.moveMinute = 0
+    this.beforeMinute = 0
+    this.afterMinute = 0
     this.baseDate = undefined
     this.excludeDelete = false
   }
@@ -40,8 +42,9 @@ export default class VideoQueryBuilder {
     return this
   }
 
-  timeRange (moveMinute: number, baseDate?: Date|dayjs.Dayjs) {
-    this.moveMinute = moveMinute
+  timeRange (beforeMinute: number, afterMinute: number, baseDate?: Date|dayjs.Dayjs) {
+    this.beforeMinute = beforeMinute
+    this.afterMinute = afterMinute
     this.baseDate = baseDate
     return this
   }

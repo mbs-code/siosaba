@@ -39,6 +39,7 @@
     "@types/chunk": "0.0.0",
     "@types/koa-logger": "^3.1.1",
     "argv": "0.0.2",
+    "array-flatten": "^3.0.0",
     "camel-case": "^4.1.1",
     "chunk": "0.0.2",
     "cli-truncate": "^2.1.0",

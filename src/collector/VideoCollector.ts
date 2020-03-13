@@ -15,14 +15,16 @@ import { VideoStatus } from './../../database/entity/type/VideoStatus' // eslint
 
 export default class VideoCollector extends Collector {
   types: VideoType[]
-  moveMinute: number
+  beforeMinute: number
+  afterMinute: number
   baseDate?: Date|dayjs.Dayjs
   excludeDelete: boolean
 
-  constructor (types: VideoType[], moveMinute: number, baseDate: Date|dayjs.Dayjs, excludeDelete: boolean) {
+  constructor (types: VideoType[], beforeMinute: number, afterMinute: number, baseDate: Date|dayjs.Dayjs, excludeDelete: boolean) {
     super()
     this.types = types
-    this.moveMinute = moveMinute
+    this.beforeMinute = beforeMinute
+    this.afterMinute = afterMinute
     this.baseDate = baseDate
     this.excludeDelete = excludeDelete
   }
@@ -43,7 +45,7 @@ export default class VideoCollector extends Collector {
 
   // can override
   protected getWhereQuery () {
-    if (this.types || this.moveMinute !== 0 || this.excludeDelete) {
+    if (this.types || this.beforeMinute !== 0 || this.afterMinute !== 0 || this.excludeDelete) {
       const query: any = {}
 
       // 種別検索
@@ -54,22 +56,15 @@ export default class VideoCollector extends Collector {
       }
 
       // 時間抽出
-      if (this.moveMinute !== 0) {
+      if (this.beforeMinute !== 0) {
         const base = dayjs(this.baseDate)
-        const line = base.add(this.moveMinute, 'minute')
-        const bb = base.format('YYYY-MM-DD HH:mm:ss')
-        const ll = line.format('YYYY-MM-DD HH:mm:ss')
-        if (this.moveMinute > 0) {
-          // 基準時 <-> 拡張時
-          // Raw(alias => `${alias} < '${ll}' AND ${alias} >= '${bb}'`)
-          query.startTime = LessThan(ll) // <
-          query.endTime = MoreThanOrEqual(bb) // >=
-        } else {
-          // 拡張時 <-> 基準時
-          // Raw(alias => `${alias} < '${bb}' AND ${alias} >= '${ll}'`)
-          query.startTime = LessThan(bb) // <
-          query.endTime = MoreThanOrEqual(ll) // >=
-        }
+        const start = base.add(this.beforeMinute, 'minute')
+        const end = base.add(this.afterMinute, 'minute')
+        const ss = start.format('YYYY-MM-DD HH:mm:ss')
+        const ee = end.format('YYYY-MM-DD HH:mm:ss')
+
+        query.endTime = MoreThanOrEqual(ss) // >=
+        query.startTime = LessThan(ee) // <
       }
 
       // status = private を除外する
