@@ -42,14 +42,14 @@ export default class Command {
   }
 
   async updateActiveVideos (date: dayjs.Dayjs) {
-    // live と 前1Hourの video を更新する
+    // live と 前1Hourの archive と video を更新する
     Logger.info('RUN - Update Active Videos. ----------------------')
     const lives = await VideoQueryBuider.builder()
       .type(VideoType.LIVE)
       .exec()
 
     const videos = await VideoQueryBuider.builder()
-      .type(VideoType.VIDEO)
+      .type(VideoType.ARCHIVE, VideoType.VIDEO)
       .timeRange(-60, 0, date)
       .exec()
 
@@ -142,7 +142,7 @@ export default class Command {
 
       // ■ 5分おきに (0, 5, 10, 15 ...)
       if (minute % 5 === 0) {
-        // live と 前1Hの video を更新する
+        // live と 前1Hourの archive と video を更新する
         await this.updateActiveVideos(day)
 
         // 前NHourの upcoming video を更新する
