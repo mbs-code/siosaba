@@ -35,7 +35,7 @@ export default class Command {
     // 一週間分の過去の video と archive を更新する
     Logger.info('RUN - Update Previous Week Videos. ---------------')
     const vids = await VideoQueryBuider.builder()
-      .type(VideoType.VIDEO, VideoType.ARCHIVE)
+      .type(VideoType.ARCHIVE, VideoType.VIDEO, VideoType.PREMIERE)
       .timeRange(-60 * 24 * 7, 0, date)
       .exec()
     await this.insertVideos(vids)
@@ -49,7 +49,7 @@ export default class Command {
       .exec()
 
     const videos = await VideoQueryBuider.builder()
-      .type(VideoType.ARCHIVE, VideoType.VIDEO)
+      .type(VideoType.ARCHIVE, VideoType.VIDEO, VideoType.PREMIERE)
       .timeRange(-60, 0, date)
       .exec()
 

@@ -1,5 +1,8 @@
+/* eslint-disable no-unused-vars */
+
 export enum VideoStatus {
-  PUBLIC = 'public', // eslint-disable-line no-unused-vars
-  UNLISTED = 'unlisted', // eslint-disable-line no-unused-vars
-  PRIVATE = 'private' // eslint-disable-line no-unused-vars
+  PUBLIC = 'public',
+  UNLISTED = 'unlisted',
+  PRIVATE = 'private',
+  DELETE = 'delete' // reserve
 }

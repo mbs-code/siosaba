@@ -134,8 +134,10 @@ export default class VideoInserter extends Inserter<Video> {
   }
 
   private _parseType = function (item: object) {
-    const liveBroadcastContent = get(item, 'snippet.liveBroadcastContent')
-    const actualEndTime = get(item, 'liveStreamingDetails.actualEndTime') // 配信終了時刻 (動画なら無い)
+    const liveBroadcastContent: string = get(item, 'snippet.liveBroadcastContent')
+    const actualStartTime: string = get(item, 'liveStreamingDetails.actualStartTime') // 配信開始時刻 (動画なら無い)
+    const actualEndTime: string = get(item, 'liveStreamingDetails.actualEndTime') // 配信終了時刻 (動画なら無い)
+    const publishedAt: string = get(item, 'snippet.publishedAt') // 公開日時
 
     if (liveBroadcastContent === 'upcoming') {
       return VideoType.UPCOMING
@@ -143,6 +145,9 @@ export default class VideoInserter extends Inserter<Video> {
       return VideoType.LIVE
     } else {
       if (actualEndTime) {
+        if (new Date(actualStartTime).getTime() === new Date(publishedAt).getTime()) {
+          return VideoType.PREMIERE
+        }
         return VideoType.ARCHIVE
       } else {
         return VideoType.VIDEO
@@ -151,7 +156,7 @@ export default class VideoInserter extends Inserter<Video> {
   }
 
   private _parseStatus = function (item: object) {
-    const privacyStatus = get(item, 'status.privacyStatus')
+    const privacyStatus: string = get(item, 'status.privacyStatus')
 
     if (privacyStatus === 'public') {
       return VideoStatus.PUBLIC
