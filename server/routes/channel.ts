@@ -36,20 +36,34 @@ router.get('/:id', async (ctx, next) => {
 })
 
 router.get('/:id/metas', async (ctx, next) => {
-  const start = dayjs().subtract(7, 'day').format('YYYY-MM-DD HH:mm:ss')
-  const metas = await ChannelMeta.find({
-    channelId: ctx.params.id,
-    createdAt: MoreThan(start)
-  })
+  const all = yn(ctx.query.all) || false
+
+  const query: any = {
+    channelId: ctx.params.id
+  }
+
+  if (!all) {
+    const start = dayjs().subtract(7, 'day').toDate()
+    query.createdAt = MoreThan(start)
+  }
+
+  const metas = await ChannelMeta.find(query)
   ctx.body = metas
 })
 
 router.get('/:id/stats', async (ctx, next) => {
-  const start = dayjs().subtract(7, 'day').format('YYYY-MM-DD HH:mm:ss')
-  const stats = await ChannelStat.find({
-    channelId: ctx.params.id,
-    createdAt: MoreThan(start)
-  })
+  const all = yn(ctx.query.all) || false
+
+  const query: any = {
+    channelId: ctx.params.id
+  }
+
+  if (!all) {
+    const start = dayjs().subtract(7, 'day').toDate()
+    query.createdAt = MoreThan(start)
+  }
+
+  const stats = await ChannelStat.find(query)
   ctx.body = stats
 })
 

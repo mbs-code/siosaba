@@ -48,20 +48,34 @@ router.get('/:id', async (ctx, next) => {
 })
 
 router.get('/:id/metas', async (ctx, next) => {
-  const start = dayjs().subtract(7, 'day').toDate()
-  const metas = await VideoMeta.find({
-    videoId: ctx.params.id,
-    createdAt: MoreThan(start)
-  })
+  const all = yn(ctx.query.all) || false
+
+  const query: any = {
+    videoId: ctx.params.id
+  }
+
+  if (!all) {
+    const start = dayjs().subtract(7, 'day').toDate()
+    query.createdAt = MoreThan(start)
+  }
+
+  const metas = await VideoMeta.find(query)
   ctx.body = metas
 })
 
 router.get('/:id/stats', async (ctx, next) => {
-  const start = dayjs().subtract(7, 'day').toDate()
-  const stats = await VideoStat.find({
-    videoId: ctx.params.id,
-    createdAt: MoreThan(start)
-  })
+  const all = yn(ctx.query.all) || false
+
+  const query: any = {
+    videoId: ctx.params.id
+  }
+
+  if (!all) {
+    const start = dayjs().subtract(7, 'day').toDate()
+    query.createdAt = MoreThan(start)
+  }
+
+  const stats = await VideoStat.find(query)
   ctx.body = stats
 })
 
