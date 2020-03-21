@@ -38,7 +38,7 @@ export default class VideoInserter extends Inserter<Video> {
     v.description = get(item, 'snippet.description')
     v.thumbnail = get(item, 'snippet.thumbnails.default.url')
     v.thumbnailHires = this.extractHiresThumbnail(get(item, 'snippet.thumbnails'))
-    v.type = this._parseType(item)
+    // v.type = this._parseType(item) // 後で挿入
     v.status = this._parseStatus(item)
     v.duration = this.parseDuration((get(item, 'contentDetails.duration')))
     // video.startTime = null // 後で挿入
@@ -58,20 +58,15 @@ export default class VideoInserter extends Inserter<Video> {
     v.comment = get(item, 'statistics.commentCount')
     v.concurrentViewers = get(item, 'liveStreamingDetails.concurrentViewers')
 
-    // start と end の計算
-    const stEdTime = this._calcStartEndTime(v)
-    v.startTime = stEdTime.start
-    v.endTime = stEdTime.end
-
-    // 最大同接の計算
-    v.maxViewers = Math.max(v.maxViewers || 0, v.concurrentViewers || 0)
-
     // channel との関連付け
     const channelKey: string = get(item, 'snippet.channelId')
     const channel = await Channel.findOne({ key: channelKey })
     if (channel) {
       v.channel = channel
     }
+
+    // バッジ処理
+    this.batch(v)
 
     await v.save()
     return v
@@ -100,7 +95,39 @@ export default class VideoInserter extends Inserter<Video> {
 
   /// ////////////////////////////////////////////////////////////
 
-  private _calcStartEndTime = function (video: Video) {
+  batch (video: Video) {
+    // 動画種別の計算
+    video.type = this.calcType(video)
+
+    // start と end の計算
+    const { start, end } = this.calcStartEndTime(video)
+    video.startTime = start
+    video.endTime = end
+
+    // 最大同接の計算
+    video.maxViewers = this.calcMaxViewers(video)
+  }
+
+  private calcType (video: Video) {
+    if (video.actualEndTime) {
+      // 終了時刻があったらアーカイブ
+      if (new Date(video.actualStartTime).getTime() === new Date(video.publishedAt).getTime()) {
+        return VideoType.PREMIERE
+      }
+      return VideoType.ARCHIVE
+    } else if (video.actualStartTime) {
+      // 開始時刻があったら配信中
+      return VideoType.LIVE
+    } else if (video.scheduledStartTime) {
+      // 予定時刻があったら待機中
+      return VideoType.UPCOMING
+    }
+
+    // それ以外は動画
+    return VideoType.VIDEO
+  }
+
+  private calcStartEndTime (video: Video) {
     if (video.type === VideoType.ARCHIVE) {
       // アーカイブなら 開始時刻 => 終了時刻
       return {
@@ -130,32 +157,19 @@ export default class VideoInserter extends Inserter<Video> {
       }
     }
 
-    return {}
+    return { start: undefined, end: undefined }
   }
 
-  private _parseType = function (item: object) {
-    const liveBroadcastContent: string = get(item, 'snippet.liveBroadcastContent')
-    const actualStartTime: string = get(item, 'liveStreamingDetails.actualStartTime') // 配信開始時刻 (動画なら無い)
-    const actualEndTime: string = get(item, 'liveStreamingDetails.actualEndTime') // 配信終了時刻 (動画なら無い)
-    const publishedAt: string = get(item, 'snippet.publishedAt') // 公開日時
+  private calcMaxViewers (video: Video) {
+    const hold = video.maxViewers || 0
+    const now = video.concurrentViewers || 0
 
-    if (liveBroadcastContent === 'upcoming') {
-      return VideoType.UPCOMING
-    } else if (liveBroadcastContent === 'live') {
-      return VideoType.LIVE
-    } else {
-      if (actualEndTime) {
-        if (new Date(actualStartTime).getTime() === new Date(publishedAt).getTime()) {
-          return VideoType.PREMIERE
-        }
-        return VideoType.ARCHIVE
-      } else {
-        return VideoType.VIDEO
-      }
-    }
+    return (hold > now) ? hold : now
   }
 
-  private _parseStatus = function (item: object) {
+  /// ////////////////////////////////////////////////////////////
+
+  private _parseStatus (item: object) {
     const privacyStatus: string = get(item, 'status.privacyStatus')
 
     if (privacyStatus === 'public') {

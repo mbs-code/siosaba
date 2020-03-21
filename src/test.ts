@@ -16,6 +16,8 @@ import Command from './command'
 import LiveVideoCollector from './collector/LiveVideoCollector'
 
 import VideoQueryBuider from './collector/builder/VideoQueryBuider'
+import ChannelQueryBuilder from './collector/builder/ChannelQueryBuilder'
+import VideoReFormatter from './collector/batch/videoReformatter';
 
 (async () => {
   console.log('start')
@@ -26,13 +28,21 @@ import VideoQueryBuider from './collector/builder/VideoQueryBuider'
   //   auth: process.env.GOOGLE_API_KEY
   // })
 
-  const vids = await VideoQueryBuider.builder()
-    .type(VideoType.ARCHIVE)
-    .timeRange(40, new Date('2020-03-09 10:00:00'))
-    .exec()
-  console.log(vids)
+  const videos = await Video.find()
+  const ref = new VideoReFormatter()
+  await ref.format(videos)
 
-  // const cids = ['UCIRI90jWpTW1exSdW7NicEg']
+  // const v = await Video.findOne({ id: 1741 })
+  // const re = new VideoReFormatter()
+  // re.format(v)
+
+  // const command = new Command()
+  // await command.exec(new Date('2020-03-14 12:05'))
+
+  // const cid = await ChannelQueryBuilder.builder().exec()
+  // console.log(cid)
+
+  // const cids = ['UCIdEIHpS0TdkqRkHL5OkLtA']
   // const ci = new ChannelInserter(youtube)
   // await ci.exec({ ids: cids })
 
@@ -41,6 +51,11 @@ import VideoQueryBuider from './collector/builder/VideoQueryBuider'
 
   // const vi = new VideoInserter(youtube)
   // await vi.exec({ ids: feedIds })
+
+  // const vids = ['YkMIzDPIFMc']
+
+  // const vi = new VideoInserter(youtube)
+  // await vi.exec({ ids: vids })
 
   // const cron = new Command()
   // await cron.exec(new Date('2020-02-15 19:05:00'))
