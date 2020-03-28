@@ -8,6 +8,7 @@ import argv from 'argv'
 import yn from 'yn'
 
 import Koa from 'koa'
+import koaBody from 'koa-bodyparser'
 import cors from '@koa/cors'
 import KoaLogger from 'koa-logger'
 
@@ -35,6 +36,7 @@ createConnection().then(async (connection: Connection) => {
   const dump = yn(args.options.debug, { default: false })
 
   const app = new Koa()
+  app.use(koaBody())
   app.use(cors()) // TODO: add options
 
   // add dump debugger

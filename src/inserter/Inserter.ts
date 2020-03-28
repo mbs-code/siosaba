@@ -34,6 +34,7 @@ export default abstract class Inserter<T extends ExtendEntity> {
     }
 
     Logger.debug('<%s> finish', this.constructor.name)
+    return items
   }
 
   private async loop (chunk: string[]): Promise<any> {
