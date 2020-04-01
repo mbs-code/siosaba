@@ -8,12 +8,14 @@ import argv from 'argv'
 import yn from 'yn'
 
 import Koa from 'koa'
-import koaBody from 'koa-bodyparser'
+import bodyParser from 'koa-bodyparser'
+import passport from 'koa-passport'
 import cors from '@koa/cors'
-import KoaLogger from 'koa-logger'
+import logger from 'koa-logger'
 
 import tableify from 'tableify'
 
+import auth from './routes/auth'
 import router from './routes'
 import Cron from '../src/cron'
 
@@ -33,15 +35,19 @@ createConnection().then(async (connection: Connection) => {
   const host = args.options.host || process.env.HOST || 'localhost'
   const port = args.options.port || process.env.PORT || 3000
   const batch = yn(args.options.batch, { default: yn(process.env.RUN_BATCH, { default: false }) })
-  const dump = yn(args.options.debug, { default: false })
+  const dump = yn(args.options.dump, { default: false })
 
   const app = new Koa()
-  app.use(koaBody())
   app.use(cors()) // TODO: add options
+  app.use(bodyParser())
+
+  app.keys = ['secret']
+  app.use(passport.initialize())
+  app.use(auth.routes())
 
   // add dump debugger
   if (dump) {
-    app.use(KoaLogger())
+    app.use(logger())
   }
 
   // error handlong
@@ -74,6 +80,7 @@ createConnection().then(async (connection: Connection) => {
   app.use(router.prefix('/api').routes())
   app.use(router.allowedMethods())
   app.use(async (ctx, next) => {
+    ctx.status = 404
     ctx.body = 'no route!\n' + ctx.url
   })
 
