@@ -4,7 +4,7 @@ import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt'
 
 import cryptoRandomString from 'crypto-random-string'
 
-const secretKey = process.env.TOKEN_SECRET_KEY || cryptoRandomString({ length: 10 })
+export const secretKey = process.env.TOKEN_SECRET_KEY || cryptoRandomString({ length: 10 })
 
 const opts: any = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -30,7 +30,4 @@ passport.use(new JwtStrategy(opts, function (jwtPayload, done) {
   return done(null, jwtPayload)
 }))
 
-export default {
-  passport,
-  secretKey
-}
+export default passport

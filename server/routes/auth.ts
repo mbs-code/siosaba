@@ -1,5 +1,5 @@
 import Router from 'koa-router'
-import { passport, secretKey } from '../lib/passport'
+import passport, { secretKey } from '../lib/passport'
 
 import jwt from 'jsonwebtoken'
 
