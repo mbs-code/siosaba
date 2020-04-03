@@ -1,5 +1,6 @@
 
 import Router from 'koa-router'
+import passport from '../lib/passport'
 import { validator } from 'koa-router-joi-validator'
 
 import ChannelInserter from '../../src/inserter/ChannelInserter'
@@ -12,7 +13,7 @@ const youtube = google.youtube({
   auth: process.env.GOOGLE_API_KEY
 })
 
-router.post('/addChannel', validator({
+const addChannelSchema = {
   text: {
     type: 'string',
     options: {
@@ -20,24 +21,27 @@ router.post('/addChannel', validator({
       min: 1
     }
   }
-}), async (ctx, next) => {
-  const body = ctx.request.body || {}
-  const text = body.text
+}
 
-  const cids = text.split(' ')
+router.post('/addChannel', passport.authenticate('jwt', { session: false }),
+  validator(addChannelSchema), async (ctx, next) => {
+    const body = ctx.request.body || {}
+    const text = body.text
 
-  // channel insert
-  const ci = new ChannelInserter(youtube)
-  const channels = await ci.exec({ ids: cids })
+    const cids = text.split(' ')
 
-  const fcids = channels.map(e => e.key)
+    // channel insert
+    const ci = new ChannelInserter(youtube)
+    const channels = await ci.exec({ ids: cids })
 
-  ctx.body = {
-    message: 'success',
-    inputIds: cids,
-    outputIds: fcids,
-    items: channels
-  }
-})
+    const fcids = channels.map(e => e.key)
+
+    ctx.body = {
+      message: 'success',
+      inputIds: cids,
+      outputIds: fcids,
+      items: channels
+    }
+  })
 
 export default router
