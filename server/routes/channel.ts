@@ -1,4 +1,3 @@
-
 import Router from 'koa-router'
 import SearchQueryBuilder from '../lib/SearchQueryBuilder'
 import { MoreThan } from 'typeorm'

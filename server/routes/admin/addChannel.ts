@@ -1,9 +1,9 @@
 
 import Router from 'koa-router'
-import passport from '../lib/passport'
+import passport from '../../lib/passport'
 import { validator } from 'koa-router-joi-validator'
 
-import ChannelInserter from '../../src/inserter/ChannelInserter'
+import ChannelInserter from '../../../src/inserter/ChannelInserter'
 import { google } from 'googleapis'
 
 const router = new Router()
@@ -13,7 +13,7 @@ const youtube = google.youtube({
   auth: process.env.GOOGLE_API_KEY
 })
 
-const addChannelSchema = {
+const postSchema = {
   text: {
     type: 'string',
     options: {
@@ -24,7 +24,7 @@ const addChannelSchema = {
 }
 
 router.post('/addChannel', passport.authenticate('jwt', { session: false }),
-  validator(addChannelSchema), async (ctx, next) => {
+  validator(postSchema), async (ctx, next) => {
     const body = ctx.request.body || {}
     const text = body.text
 

@@ -23,14 +23,14 @@ import VideoReFormatter from './collector/batch/videoReformatter';
   console.log('start')
   const conn = await createConnection()
 
-  // const youtube = google.youtube({
-  //   version: 'v3',
-  //   auth: process.env.GOOGLE_API_KEY
-  // })
+  const youtube = google.youtube({
+    version: 'v3',
+    auth: process.env.GOOGLE_API_KEY
+  })
 
-  const videos = await Video.find()
-  const ref = new VideoReFormatter()
-  await ref.format(videos)
+  // const videos = await Video.find()
+  // const ref = new VideoReFormatter()
+  // await ref.format(videos)
 
   // const v = await Video.findOne({ id: 1741 })
   // const re = new VideoReFormatter()
@@ -52,10 +52,10 @@ import VideoReFormatter from './collector/batch/videoReformatter';
   // const vi = new VideoInserter(youtube)
   // await vi.exec({ ids: feedIds })
 
-  // const vids = ['YkMIzDPIFMc']
+  const vids = ['7ATyxLHQCrU']
 
-  // const vi = new VideoInserter(youtube)
-  // await vi.exec({ ids: vids })
+  const vi = new VideoInserter(youtube)
+  await vi.exec({ ids: vids })
 
   // const cron = new Command()
   // await cron.exec(new Date('2020-02-15 19:05:00'))
