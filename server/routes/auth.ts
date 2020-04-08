@@ -1,5 +1,5 @@
 import Router from 'koa-router'
-import passport, { secretKey } from '../lib/passport'
+import passport, { secretKey, expiresIn } from '../lib/passport'
 
 import jwt from 'jsonwebtoken'
 
@@ -9,10 +9,15 @@ router.post('/login', passport.authenticate('local', { session: false }), async 
   console.log('user', ctx.state.user)
 
   const payload = ctx.state.user
-  const token = jwt.sign(payload, secretKey, { expiresIn: '60m' })
+  const token = jwt.sign(payload, secretKey, { expiresIn })
+
+  const { iat, exp }: any = jwt.verify(token, secretKey)
+
   ctx.body = {
     user: ctx.state.user,
-    token: token
+    token: token,
+    issuedAt: iat,
+    expiresIn: exp
   }
 })
 
