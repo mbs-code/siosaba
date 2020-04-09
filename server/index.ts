@@ -30,7 +30,9 @@ const args = argv.option([
 process.env.TYPEORM_LOGGING = 'true'
 
 // init database
-createConnection().then(async (connection: Connection) => {
+createConnection().then(async (conn: Connection) => {
+  console.log(`> Database connected to ${conn.driver.database}`)
+
   // configure
   const host = args.options.host || process.env.HOST || 'localhost'
   const port = args.options.port || process.env.PORT || 3000
@@ -86,12 +88,12 @@ createConnection().then(async (connection: Connection) => {
 
   // awake server
   app.listen(port, host)
-  console.log(`listen to http://${host}:${port}`)
+  console.log(`> Listen to http://${host}:${port}`)
 
   if (batch) {
     // awake batch process
     const cron = new Cron() // eslint-disable-line no-unused-vars
-    console.log('run cron batch')
+    console.log('> Run cron batch')
   }
 
   console.log('wait...')
