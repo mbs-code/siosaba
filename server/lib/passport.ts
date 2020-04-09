@@ -5,7 +5,7 @@ import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt'
 import cryptoRandomString from 'crypto-random-string'
 
 export const secretKey = process.env.TOKEN_SECRET_KEY || cryptoRandomString({ length: 12 })
-export const expiresIn = Number(process.env.TOKEN_EXPIRES_IN_SECONDS) || 5 // 1 session で切れるくらい
+export const expiresIn = process.env.TOKEN_EXPIRES_IN || 5 // 1 session で切れるくらい
 
 const opts: any = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -28,7 +28,6 @@ passport.use(new LocalStrategy(function (username, password, done) {
 }))
 
 passport.use(new JwtStrategy(opts, function (jwtPayload, done) {
-  console.log(jwtPayload)
   return done(null, jwtPayload)
 }))
 

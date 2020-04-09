@@ -7,7 +7,8 @@ const router = new Router()
 
 router.post('/login', passport.authenticate('local', { session: false }), async (ctx, name) => {
   console.log('user', ctx.state.user)
-
+  console.log('- secretKey:', '*'.repeat(secretKey.length))
+  console.log('- expiresIn:', expiresIn)
   const payload = ctx.state.user
   const token = jwt.sign(payload, secretKey, { expiresIn })
 
