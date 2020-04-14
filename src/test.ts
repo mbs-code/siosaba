@@ -1,5 +1,6 @@
-import { Video } from './../database/entity/Video';
-import { VideoType } from './../database/entity/type/VideoType';
+import { VideoMeta } from './../database/entity/VideoMeta'
+import { Video } from './../database/entity/Video'
+import { VideoType } from './../database/entity/type/VideoType'
 import { createConnection } from 'typeorm'
 import 'reflect-metadata'
 
@@ -17,17 +18,28 @@ import LiveVideoCollector from './collector/LiveVideoCollector'
 
 import VideoQueryBuider from './collector/builder/VideoQueryBuider'
 import ChannelQueryBuilder from './collector/builder/ChannelQueryBuilder'
-import VideoReFormatter from './collector/batch/videoReformatter';
+import VideoReFormatter from './collector/batch/videoReformatter'
+import VideoMetaToRecord from './collector/batch/VideoMetaToRecord'
+import ChannelMetaToRecord from './collector/batch/ChannelMetaToRecord'
+import { Channel } from '../database/entity/Channel'
 
 (async () => {
   console.log('start')
   const conn = await createConnection()
 
-  const youtube = google.youtube({
-    version: 'v3',
-    auth: process.env.GOOGLE_API_KEY
-  })
+  // const youtube = google.youtube({
+  //   version: 'v3',
+  //   auth: process.env.GOOGLE_API_KEY
+  // })
 
+  // ■ metaToReplacer
+  // const channels = await Channel.find()
+  // const ctr = await ChannelMetaToRecord(channels)
+
+  // const videos = await Video.find()
+  // const vtr = await VideoMetaToRecord(videos)
+
+  // ■ reFormatter
   // const videos = await Video.find()
   // const ref = new VideoReFormatter()
   // await ref.format(videos)
@@ -52,10 +64,10 @@ import VideoReFormatter from './collector/batch/videoReformatter';
   // const vi = new VideoInserter(youtube)
   // await vi.exec({ ids: feedIds })
 
-  const vids = ['7ATyxLHQCrU']
+  // const vids = ['7ATyxLHQCrU']
 
-  const vi = new VideoInserter(youtube)
-  await vi.exec({ ids: vids })
+  // const vi = new VideoInserter(youtube)
+  // await vi.exec({ ids: vids })
 
   // const cron = new Command()
   // await cron.exec(new Date('2020-02-15 19:05:00'))
@@ -83,12 +95,12 @@ import VideoReFormatter from './collector/batch/videoReformatter';
   // await ci.exec({ ids: cids })
 
   // ■ channel insert
-  // const cids = ['UC6oDys1BGgBsIC3WhG1BovQ']
+  // const cids = ['UCmM5LprTu6-mSlIiRNkiXYg']
   // const ci = new ChannelInserter(youtube)
   // await ci.exec({ ids: cids })
 
   // ■ video insert
-  // const vids = ['U_Fe0ICGNdcs']
+  // const vids = ['WhD1GoPrc4I']
   // const vi = new VideoInserter(youtube)
   // await vi.exec({ ids: vids })
 })().then(() => {
