@@ -7,6 +7,7 @@ import yn from 'yn'
 import { Channel } from '../../database/entity/Channel'
 import { ChannelStat } from './../../database/entity/ChannelStat'
 import { ChannelMeta } from './../../database/entity/ChannelMeta'
+import { ChannelRecord } from './../../database/entity/ChannelRecord'
 
 const router = new Router()
 router.get('/', async (ctx, next) => {
@@ -32,6 +33,11 @@ router.get('/', async (ctx, next) => {
 router.get('/:id', async (ctx, next) => {
   const channel = await Channel.findOneOrFail({ id: ctx.params.id })
   ctx.body = channel
+})
+
+router.get('/:id/records', async (ctx, next) => {
+  const metas = await ChannelRecord.find({ channelId: ctx.params.id })
+  ctx.body = metas
 })
 
 router.get('/:id/metas', async (ctx, next) => {
