@@ -10,6 +10,20 @@ export class ExtendEntity extends BaseEntity {
   }
   ///
 
+  static RECORD_COLUMNS = []
+
+  /**
+   * カラム配列から記録対象を抽出するフィルター.
+   * @param {string[]} columnNames カラム配列
+   * @return {string[]} column name 配列
+   */
+  static filterOnlyRecordColumns (columnNames: string[]): string[] {
+    const recordColumns = this.RECORD_COLUMNS
+    const columns = columnNames
+      .filter(s => recordColumns.indexOf(s) !== -1)
+    return columns
+  }
+
   /**
    * 自身の column name を取得する.
    * - entity の property name を基準とする (DBではない)

@@ -15,6 +15,10 @@ import { Video } from './Video'
 
 @Entity('channels')
 export class Channel extends ExtendEntity {
+  static RECORD_COLUMNS = ['key', 'title', 'description', 'thumbnail', 'thumbnailHires',
+    'playlist', 'tags', 'banner', 'bannerHires', 'publishedAt'
+  ]
+
   @PrimaryGeneratedColumn()
   id: number
 

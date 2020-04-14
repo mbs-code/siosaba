@@ -19,6 +19,10 @@ import { VideoStatus } from './type/VideoStatus'
 
 @Entity('videos')
 export class Video extends ExtendEntity {
+  static RECORD_COLUMNS = ['key', 'title', 'description', 'thumbnail', 'thumbnailHires', 'type', 'status', 'duration',
+    'scheduledStartTime', 'scheduledEndTime', 'actualStartTime', 'actualEndTime', 'tags', 'liveChatKey', 'publishedAt'
+  ]
+
   @PrimaryGeneratedColumn()
   id: number
 
