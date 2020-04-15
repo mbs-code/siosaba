@@ -53,7 +53,7 @@ export class VideoSubscriber implements EntitySubscriberInterface<Video> {
       const record = new VideoRecord()
       record.videoId = video.id
       record.json = {}
-      for (const column of changeColumns) {
+      for (const column of recordColumns) {
         record.json[column] = [oldVideo[column], video[column]]
       }
 

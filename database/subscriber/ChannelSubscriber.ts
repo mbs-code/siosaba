@@ -52,7 +52,7 @@ export class ChannelSubscriber implements EntitySubscriberInterface<Channel> {
       const record = new ChannelRecord()
       record.channelId = channel.id
       record.json = {}
-      for (const column of changeColumns) {
+      for (const column of recordColumns) {
         record.json[column] = [oldChannel[column], channel[column]]
       }
 
