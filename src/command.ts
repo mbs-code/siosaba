@@ -125,19 +125,19 @@ export default class Command {
       Logger.info('- date: %s', day.format('YYYY-MM-DD HH:mm:ss.sss'))
       Logger.info('------------------------------------------------------------')
 
-      // ■ 12時間おきに (0:00, 12:00)
-      if (hour % 12 === 0 && minute === 0) {
+      // ■ 1時間おきに
+      if (minute === 0) {
         // channel を全て更新する
         await this.updateChannels()
 
-        // 一週間分の過去の video と archive を更新する
-        await this.updatePreviousWeekVideos(day)
-      }
-
-      // ■ 1時間おきに
-      if (minute === 0) {
         // 全ての upcoming video を更新する
         await this.updateUpcomingVideos()
+      }
+
+      // ■ 12時間おきに (0:00, 12:00)
+      if (hour % 12 === 0 && minute === 0) {
+        // 一週間分の過去の video と archive を更新する
+        await this.updatePreviousWeekVideos(day)
       }
 
       // ■ 5分おきに (0, 5, 10, 15 ...)
