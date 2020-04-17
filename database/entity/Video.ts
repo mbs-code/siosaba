@@ -12,8 +12,9 @@ import {
 
 import { ExtendEntity } from './ExtendEntity'
 import { Channel } from './Channel'
-import { VideoMeta } from './VideoMeta'
+import { VideoRecord } from './VideoRecord'
 import { VideoStat } from './VideoStat'
+
 import { VideoType } from './type/VideoType'
 import { VideoStatus } from './type/VideoStatus'
 
@@ -121,31 +122,9 @@ export class Video extends ExtendEntity {
   @JoinColumn({ name: 'channel_id' })
   channel: Channel
 
-  @OneToMany(type => VideoMeta, meta => meta.video)
-  metas: VideoMeta[]
+  @OneToMany(type => VideoRecord, record => record.video)
+  records: VideoRecord[]
 
   @OneToMany(type => VideoStat, stat => stat.video)
   stats: VideoStat[]
-
-  ///
-
-  createVideoMeta () {
-    const meta = new VideoMeta()
-    const cols = VideoMeta.getColumnNames('id', 'videoId', 'createdAt')
-    for (const col of cols) {
-      meta[col] = this[col]
-    }
-    meta.video = this
-    return meta
-  }
-
-  createVideoStat () {
-    const stat = new VideoStat()
-    const cols = VideoStat.getColumnNames('id', 'videoId', 'createdAt')
-    for (const col of cols) {
-      stat[col] = this[col]
-    }
-    stat.video = this
-    return stat
-  }
 }

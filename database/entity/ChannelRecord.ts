@@ -28,12 +28,9 @@ export class ChannelRecord extends ExtendEntity {
   @CreateDateColumn({ type: 'datetime', precision: 3, default: () => 'CURRENT_TIMESTAMP(3)', name: 'created_at' })
   createdAt: Date
 
-  // @Column({ type: 'datetime', precision: 3, default: () => 'CURRENT_TIMESTAMP(3)', name: 'created_at' })
-  // createdAt: Date
-
   ///
 
-  @ManyToOne(type => Channel, channel => channel.metas)
+  @ManyToOne(type => Channel, channel => channel.records)
   @JoinColumn({ name: 'channel_id' })
   channel: Channel
 }

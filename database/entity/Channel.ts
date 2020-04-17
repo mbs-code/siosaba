@@ -9,7 +9,7 @@ import {
 } from 'typeorm'
 
 import { ExtendEntity } from './ExtendEntity'
-import { ChannelMeta } from './ChannelMeta'
+import { ChannelRecord } from './ChannelRecord'
 import { ChannelStat } from './ChannelStat'
 import { Video } from './Video'
 
@@ -84,31 +84,9 @@ export class Channel extends ExtendEntity {
   @OneToMany(type => Video, video => video.channel)
   videos: Video[]
 
-  @OneToMany(type => ChannelMeta, meta => meta.channel)
-  metas: ChannelMeta[]
+  @OneToMany(type => ChannelRecord, record => record.channel)
+  records: ChannelRecord[]
 
   @OneToMany(type => ChannelStat, stat => stat.channel)
   stats: ChannelStat[]
-
-  ///
-
-  createChannelMeta () {
-    const meta = new ChannelMeta()
-    const cols = ChannelMeta.getColumnNames('id', 'channelId', 'createdAt')
-    for (const col of cols) {
-      meta[col] = this[col]
-    }
-    meta.channel = this
-    return meta
-  }
-
-  createChannelStat () {
-    const stat = new ChannelStat()
-    const cols = ChannelStat.getColumnNames('id', 'channelId', 'createdAt')
-    for (const col of cols) {
-      stat[col] = this[col]
-    }
-    stat.channel = this
-    return stat
-  }
 }

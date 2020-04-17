@@ -6,7 +6,6 @@ import yn from 'yn'
 
 import { Channel } from '../../database/entity/Channel'
 import { ChannelStat } from './../../database/entity/ChannelStat'
-import { ChannelMeta } from './../../database/entity/ChannelMeta'
 import { ChannelRecord } from './../../database/entity/ChannelRecord'
 
 const router = new Router()
@@ -37,22 +36,6 @@ router.get('/:id', async (ctx, next) => {
 
 router.get('/:id/records', async (ctx, next) => {
   const metas = await ChannelRecord.find({ channelId: ctx.params.id })
-  ctx.body = metas
-})
-
-router.get('/:id/metas', async (ctx, next) => {
-  const all = yn(ctx.query.all) || false
-
-  const query: any = {
-    channelId: ctx.params.id
-  }
-
-  if (!all) {
-    const start = dayjs().subtract(7, 'day').toDate()
-    query.createdAt = MoreThan(start)
-  }
-
-  const metas = await ChannelMeta.find(query)
   ctx.body = metas
 })
 

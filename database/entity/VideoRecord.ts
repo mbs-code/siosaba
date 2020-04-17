@@ -28,12 +28,9 @@ export class VideoRecord extends ExtendEntity {
   @CreateDateColumn({ type: 'datetime', precision: 3, default: () => 'CURRENT_TIMESTAMP(3)', name: 'created_at' })
   createdAt: Date
 
-  // @Column({ type: 'datetime', precision: 3, default: () => 'CURRENT_TIMESTAMP(3)', name: 'created_at' })
-  // createdAt: Date
-
   ///
 
-  @ManyToOne(type => Video, video => video.metas)
+  @ManyToOne(type => Video, video => video.records)
   @JoinColumn({ name: 'video_id' })
   video: Video
 }

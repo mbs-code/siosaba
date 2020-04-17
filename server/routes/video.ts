@@ -6,7 +6,6 @@ import yn from 'yn'
 
 import { Video } from '../../database/entity/Video'
 import { VideoStat } from './../../database/entity/VideoStat'
-import { VideoMeta } from './../../database/entity/VideoMeta'
 import { VideoRecord } from './../../database/entity/VideoRecord'
 import { VideoStatus } from './../../database/entity/type/VideoStatus'
 import { VideoType } from './../../database/entity/type/VideoType'
@@ -46,22 +45,6 @@ router.get('/:id', async (ctx, next) => {
 
   const item = await query.getOne()
   ctx.body = item
-})
-
-router.get('/:id/metas', async (ctx, next) => {
-  const all = yn(ctx.query.all) || false
-
-  const query: any = {
-    videoId: ctx.params.id
-  }
-
-  if (!all) {
-    const start = dayjs().subtract(7, 'day').toDate()
-    query.createdAt = MoreThan(start)
-  }
-
-  const metas = await VideoMeta.find(query)
-  ctx.body = metas
 })
 
 router.get('/:id/records', async (ctx, next) => {
