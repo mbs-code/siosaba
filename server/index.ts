@@ -32,6 +32,7 @@ createConnection().then(async (conn: Connection) => {
   console.log(`> Database connected to ${conn.driver.database}`)
 
   // configure
+  // proprity: command-line > .env > default value
   const host = args.options.host || process.env.HOST || 'localhost'
   const port = args.options.port || process.env.PORT || 3000
   const batch = yn(args.options.batch, { default: yn(process.env.RUN_BATCH, { default: false }) })
