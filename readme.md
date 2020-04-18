@@ -35,6 +35,7 @@ priority: `command-line` > `.env` > `default value`
 |host|h|HOST|listen hostname|localhost|
 |port|p|PORT|listen port number|3000|
 |batch|b|RUN_BATCH|run background batch|false|
+|cors|c|-|Use CORS: *|false|
 |dump|d|-|show connection log|false|
 
 ## TypeORM Command Memo
