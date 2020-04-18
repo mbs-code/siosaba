@@ -27,8 +27,6 @@ const args = argv.option([
   { name: 'dump', short: 'd', type: 'boolean', description: 'Show dump connection logs' }
 ]).run()
 
-process.env.TYPEORM_LOGGING = 'true'
-
 // init database
 createConnection().then(async (conn: Connection) => {
   console.log(`> Database connected to ${conn.driver.database}`)
@@ -43,7 +41,6 @@ createConnection().then(async (conn: Connection) => {
   app.use(cors()) // TODO: add options
   app.use(bodyParser())
 
-  app.keys = ['secret']
   app.use(passport.initialize())
   app.use(auth.routes())
 
