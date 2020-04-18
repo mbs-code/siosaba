@@ -36,3 +36,12 @@ priority: `command-line` > `.env` > `default value`
 |port|p|PORT|listen port number|3000|
 |batch|b|RUN_BATCH|run background batch|false|
 |dump|d|-|show connection log|false|
+
+## TypeORM Command Memo
+
+- [typeorm/using\-cli\.md at master · typeorm/typeorm](https://github.com/typeorm/typeorm/blob/master/docs/using-cli.md)
+
+|desc|command|
+|:--|:--|
+|Drop All Table|`$ npm run typeorm -- schema:drop`|
+|Raw Query|`$ npm run typeorm -- query "SELECT * FROM USERS"`|

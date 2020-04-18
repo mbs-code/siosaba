@@ -8,9 +8,7 @@
     "dev": "ts-node-dev -r dotenv/config --respawn ./server/index.ts --port=3001 --batch=false --dump=true",
     "test": "ts-node -r dotenv/config --transpile-only ./src/test.ts",
     "typeorm": "ts-node -r tsconfig-paths/register -r dotenv/config ./node_modules/typeorm/cli.js",
-    "db:sync": "npm run typeorm -- schema:sync",
-    "db:drop": "npm run typeorm -- schema:drop",
-    "db:reset": "npm run db:drop && npm run db:sync"
+    "db:sync": "npm run typeorm -- schema:sync"
   },
   "author": "mabasasi",
   "private": true,
