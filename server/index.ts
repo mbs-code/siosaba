@@ -24,33 +24,30 @@ const args = argv.option([
   { name: 'host', short: 'h', type: 'string', description: 'API Host name. (default: localhost)' },
   { name: 'port', short: 'p', type: 'int', description: 'API Port number. (default: 3000)' },
   { name: 'batch', short: 'b', type: 'boolean', description: 'Run background batch process. (default:false)' },
-  { name: 'dump', short: 'd', type: 'boolean', description: 'Show dump connection logs' }
+  { name: 'cors', short: 'c', type: 'boolean', description: 'Use CORS (default:false)' },
+  { name: 'dump', short: 'd', type: 'boolean', description: 'Show dump connection logs (default: false)' }
 ]).run()
-
-process.env.TYPEORM_LOGGING = 'true'
 
 // init database
 createConnection().then(async (conn: Connection) => {
   console.log(`> Database connected to ${conn.driver.database}`)
 
   // configure
+  // proprity: command-line > .env > default value
   const host = args.options.host || process.env.HOST || 'localhost'
   const port = args.options.port || process.env.PORT || 3000
-  const batch = yn(args.options.batch, { default: yn(process.env.RUN_BATCH, { default: false }) })
-  const dump = yn(args.options.dump, { default: false })
+  const useBatch = yn(args.options.batch, { default: yn(process.env.RUN_BATCH, { default: false }) })
+  const useCors = yn(args.options.cors, { default: false })
+  const useDump = yn(args.options.dump, { default: false })
 
   const app = new Koa()
-  app.use(cors()) // TODO: add options
   app.use(bodyParser())
 
-  app.keys = ['secret']
+  if (useCors) app.use(cors()) // TODO: add options
+  if (useDump) app.use(logger())
+
   app.use(passport.initialize())
   app.use(auth.routes())
-
-  // add dump debugger
-  if (dump) {
-    app.use(logger())
-  }
 
   // error handlong
   app.use(async (ctx, next) => {
@@ -90,7 +87,7 @@ createConnection().then(async (conn: Connection) => {
   app.listen(port, host)
   console.log(`> Listen to http://${host}:${port}`)
 
-  if (batch) {
+  if (useBatch) {
     // awake batch process
     const cron = new Cron() // eslint-disable-line no-unused-vars
     console.log('> Run cron batch')

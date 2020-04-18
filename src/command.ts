@@ -5,7 +5,7 @@ import { google, youtube_v3 as youtubeV3 } from 'googleapis' // eslint-disable-l
 import dayjs from 'dayjs'
 import { cron as Logger, EOL } from './lib/logger'
 
-import ChannelQueryBuilder from './collector/builder/channelQueryBuilder'
+import ChannelQueryBuilder from './collector/builder/ChannelQueryBuilder'
 import VideoQueryBuider from './collector/builder/VideoQueryBuider'
 import ChannelInserter from './inserter/ChannelInserter'
 import VideoInserter from './inserter/VideoInserter'
