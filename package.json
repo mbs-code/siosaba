@@ -5,10 +5,11 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node -r dotenv/config ./server/index.ts",
-    "dev": "ts-node-dev -r dotenv/config --respawn ./server/index.ts --port=3001 --batch=false --dump=true",
+    "dev": "ts-node-dev -r dotenv/config --respawn ./server/index.ts",
     "test": "ts-node -r dotenv/config --transpile-only ./src/test.ts",
     "typeorm": "ts-node -r tsconfig-paths/register -r dotenv/config ./node_modules/typeorm/cli.js",
-    "db:sync": "npm run typeorm -- schema:sync"
+    "db:sync": "npm run typeorm -- schema:sync",
+    "pm2:start": "pm2 start ./pm2.config.js"
   },
   "author": "mabasasi",
   "private": true,
