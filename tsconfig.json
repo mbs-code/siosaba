@@ -1,7 +1,13 @@
 {
   "compilerOptions": {
-    "esModuleInterop": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
-  }
+    "target": "es2017",
+    "module": "commonjs",
+    "sourceMap": true,
+    "esModuleInterop": true, // inport * の抑制
+    "emitDecoratorMetadata": true, // use typeorm
+    "experimentalDecorators": true // use typeorm
+  },
+  "exclude": [
+    "node_modules",
+  ]
 }
