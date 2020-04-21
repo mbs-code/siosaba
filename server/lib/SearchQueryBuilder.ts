@@ -156,6 +156,7 @@ export default class SearchOptionBuilder {
 
   /// ////////////////////////////////////////////////////////////
 
+  // TODO: paramUtil と重複
   private range (num: number, { min, max }: { min?: number, max?: number } = {}) {
     if (num) {
       if (max !== null && num > max) {
