@@ -4,7 +4,7 @@ YouTube の動画情報を収集する鯖側のAPIです。
 
 ## Setup
 
-``` console
+``` bash
 $ npm install
 
 # edit env file
@@ -20,10 +20,31 @@ $ npm db:sync
 $ npm run start
 ```
 
-##### Debug mode
-```
+##### Debug Mode
+``` bash
 $ npm run dev
-# equal to $ npm run start -- --port=3001 --batch=false --dump=true
+```
+
+##### PM2 Persistence (永続化)
+``` bash
+$ npm install -g pm2
+
+# [any] to daemon
+$ pm2 startup centos
+
+# run pm2 
+$ npm run pm2:start
+# equal to $ pm2 start ./pm2.config.js
+# equal to $ pm2 start "npm run start" --name 'siosaba'
+
+# show console
+$ pm2 log 'siosaba'
+
+# stop pm2
+$ pm2 stop 'siosaba'
+
+# stop all
+$ pm2 kill
 ```
 
 ## Configure

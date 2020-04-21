@@ -37,7 +37,7 @@ createConnection().then(async (conn: Connection) => {
   const host = args.options.host || process.env.HOST || 'localhost'
   const port = args.options.port || process.env.PORT || 3000
   const useBatch = yn(args.options.batch, { default: yn(process.env.RUN_BATCH, { default: false }) })
-  const useCors = yn(args.options.cors, { default: false })
+  const useCors = yn(args.options.cors, { default: yn(process.env.CORS, { default: false }) })
   const useDump = yn(args.options.dump, { default: false })
 
   const app = new Koa()
