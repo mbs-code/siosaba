@@ -29,6 +29,7 @@ router.get('/logs', passport.authenticate('jwt', { session: false }), async (ctx
     text = hideAsterisk(text, process.env.DB_PASSWORD)
     text = hideAsterisk(text, process.env.API_ADMIN_USERNAME)
     text = hideAsterisk(text, process.env.API_ADMIN_PASSWORD)
+    text = hideAsterisk(text, process.cwd())
 
     ctx.body = text
   }
