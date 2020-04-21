@@ -70,6 +70,7 @@
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
     "printf": "^0.5.2",
+    "read-last-lines": "^1.7.2",
     "reflect-metadata": "^0.1.13",
     "rss-parser": "^3.7.5",
     "tableify": "^1.1.0",
