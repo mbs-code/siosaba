@@ -21,7 +21,7 @@ export class App extends ExtendEntity {
   @Column({ type: 'enum', enum: AppVariableKey })
   key: AppVariableKey
 
-  @Column({ nullable: true })
+  @Column({ type: 'mediumtext', nullable: true })
   value: string
 
   ///
